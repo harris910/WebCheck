@@ -40,7 +40,6 @@ for i in df.index:
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=opt, desired_capabilities=dc)
             requests.post(url = 'http://localhost:3000/complete', data = {'website': df['website'][i]})
             driver.get(r'https://www.'+ df['website'][i])
-            #driver.get(r'file:///Users/haadi/Desktop/UserStudy/extension/basic.html')
             
             # sleep
             time.sleep(200)
@@ -52,7 +51,7 @@ for i in df.index:
             dic[df['website'][i]].append(driver.get_log('browser'))
             dic[df['website'][i]].append(driver.page_source)
             # saving it in csv
-            pd.DataFrame(dic).to_csv('output/method.csv')
+            pd.DataFrame(dic).to_csv('output/logs.csv')
             # driver.quit   
             driver.quit()
 

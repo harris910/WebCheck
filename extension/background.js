@@ -27,6 +27,7 @@ async function ajaxMe(url, headers, method, postData, success, error) {
     error(finalResponse);
   }
 }
+
 function editResponse(resp, lineNo, columnNo){
   var startLine;
   var endLine;
@@ -67,15 +68,15 @@ chrome.tabs.query({active:true},
     //chrome.debugger.sendCommand({tabId:tabId}, "Fetch.enable", { patterns: [{ urlPattern: '*' }] });
 
     // blocking specified request
-    chrome.webRequest.onBeforeRequest.addListener(
-      function(details) { return {cancel: true}; },
-      {urls: url},
-      ["blocking"]
-    );
+    // chrome.webRequest.onBeforeRequest.addListener(
+    //   function(details) { return {cancel: true}; },
+    //   {urls: url},
+    //   ["blocking"]
+    // );
     chrome.debugger.onEvent.addListener(onEvent);
   })
 
-  function onEvent(debuggeeId, message, params) {
+function onEvent(debuggeeId, message, params) {
   if (tabId != debuggeeId.tabId)
     return;
   if (message == "Network.requestWillBeSent") {
