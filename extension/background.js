@@ -1,7 +1,7 @@
 window.tabId=0;
 var stmt = {};
 var url = [];
-const port = 4001;
+const port = 3000;
 
 function getHeaderString(headers) {
   let responseHeader = '';
@@ -48,14 +48,6 @@ function editResponse(resp, lineNo, columnNo){
         endLine = i;
         break;
       }
-  }
-  // console.log(resp[startLine]);
-  // console.log(resp[startLine+1]);
-  // console.log(resp[startLine+2]);
-  // console.log(resp[startLine+3]);
-  // console.log(resp[startLine+4]);
-  // console.log(resp[startLine+5]);
-  // console.log(resp[startLine+6]);
 
   return resp.substr(0, startLine-1) + resp.substr(endLine);
 }
