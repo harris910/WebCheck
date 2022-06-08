@@ -5,3 +5,4 @@ var injectJs = function(fileName) {
     headElement.insertBefore(s, headElement.firstElementChild);
 };
 injectJs("inject.js");
+injectJs("test.js");

@@ -4,10 +4,31 @@ var cookieSetter = document.__lookupSetter__("cookie").bind(document);
 var storageGetter = window.__lookupGetter__("localStorage").bind(window);
 // var storageSetter = window.__lookupSetter__("localStorage").bind(window);
 
-var originalSetItem = localStorage.setItem; 
-localStorage.setItem = function(){
-    alert.log("localstorage set item");
-    originalSetItem.apply(this, arguments);
+// const originalSetItem = localStorage.setItem;
+
+// localStorage.setItem = function(key, value) {
+//   const event = new Event('itemInserted');
+
+//   event.value = value; // Optional..
+//   event.key = key; // Optional..
+
+//   document.dispatchEvent(event);
+
+//   originalSetItem.apply(this, arguments);
+// };
+
+// const localStorageSetHandler = function(e) {
+//   alert('localStorage.set("' + e.key + '", "' + e.value + '") was called');
+// };
+
+// document.addEventListener("itemInserted", localStorageSetHandler, false);
+
+let originalFunction = window.Storage.prototype.setItem;
+window.Storage.prototype.setItem = function(keyName, keyValue) {
+    console.log(keyName);
+    console.log(new Error().stack);
+    originalFunction.apply(this, arguments);
+    return;
 }
 
 //console.log(window.__lookupGetter__("localStorage"));

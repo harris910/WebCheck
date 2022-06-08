@@ -14,7 +14,7 @@ import os
 
 #df = pd.read_csv(r'3.csv')
 #extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([['xnxx.com']], columns=['website'])
+df = pd.DataFrame([['arabic.chat/']], columns=['website'])
 
 count = 0
 
@@ -44,7 +44,7 @@ for i in df.index:
             driver.get(r'https://www.'+ df['website'][i])
             
             # sleep
-            time.sleep(20)
+            time.sleep(200)
             
             # dictionary collecting logs
             # 1: Logs 2: PageSource 
