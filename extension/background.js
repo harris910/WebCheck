@@ -10,6 +10,7 @@ function getHeaderString(headers) {
   });
   return responseHeader;
 }
+
 async function ajaxMe(url, headers, method, postData, success, error) {
   let finalResponse = {};
   let response = await fetch(url, {
@@ -28,7 +29,7 @@ async function ajaxMe(url, headers, method, postData, success, error) {
   }
 }
 
-function editResponse(resp, lineNo, columnNo){
+function editResponse(resp, lineNo, columnNo) {
   var startLine;
   var endLine;
   var count = 0;
@@ -49,7 +50,7 @@ function editResponse(resp, lineNo, columnNo){
         endLine = i;
         break;
       }
-
+  }
   return resp.substr(0, startLine-1) + resp.substr(endLine);
 }
 
@@ -65,9 +66,9 @@ chrome.tabs.query({active:true},
           console.log("debugger attached");
      } );
     chrome.debugger.sendCommand({tabId:tabId}, "Network.enable");
-    //chrome.debugger.sendCommand({tabId:tabId}, "Fetch.enable", { patterns: [{ urlPattern: '*' }] });
+    // chrome.debugger.sendCommand({tabId:tabId}, "Fetch.enable", { patterns: [{ urlPattern: '*' }] });
 
-    // blocking specified request
+    // // blocking specified request
     // chrome.webRequest.onBeforeRequest.addListener(
     //   function(details) { return {cancel: true}; },
     //   {urls: url},

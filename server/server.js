@@ -50,17 +50,17 @@ app.post('/request', (req, res) => {
 })
 
 app.post('/requestinfo', (req, res) => {
-  insertRequestInfo(req.body);
+  insertRequestInfo(req.body, website[0]);
   res.send("request-success");
 })
 
 app.post('/response', (req, res) => {
-  insertResponse(req.body);
+  insertResponse(req.body, website[0]);
   res.send("response-success");
 })
 
 app.post('/cookiestorage', (req, res) => {
-  insertInfo(req.body);
+  insertInfo(req.body, website[0]);
   res.send("response-success");
 })
 

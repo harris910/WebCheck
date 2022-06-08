@@ -5,6 +5,7 @@ import time
 # from pyvirtualdisplay import Display
 import pandas as pd
 import requests
+import os
 
 
 # virtual display
@@ -13,7 +14,7 @@ import requests
 
 #df = pd.read_csv(r'3.csv')
 #extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([['deeretnanews.com']], columns=['website'])
+df = pd.DataFrame([['xnxx.com']], columns=['website'])
 
 count = 0
 
@@ -37,12 +38,13 @@ for i in df.index:
             dc = DesiredCapabilities.CHROME
             dc['goog:loggingPrefs'] = { 'browser':'ALL' }
 
+            os.mkdir("server/output/"+df['website'][i])
             driver = webdriver.Chrome(ChromeDriverManager().install(), options=opt, desired_capabilities=dc)
             requests.post(url = 'http://localhost:3000/complete', data = {'website': df['website'][i]})
             driver.get(r'https://www.'+ df['website'][i])
             
             # sleep
-            time.sleep(200)
+            time.sleep(20)
             
             # dictionary collecting logs
             # 1: Logs 2: PageSource 
@@ -51,7 +53,7 @@ for i in df.index:
             dic[df['website'][i]].append(driver.get_log('browser'))
             dic[df['website'][i]].append(driver.page_source)
             # saving it in csv
-            pd.DataFrame(dic).to_csv('output/logs.csv')
+            pd.DataFrame(dic).to_csv('server/output/'+df['website'][i]+'/logs.csv')
             # driver.quit   
             driver.quit()
 

@@ -4,6 +4,12 @@ var cookieSetter = document.__lookupSetter__("cookie").bind(document);
 var storageGetter = window.__lookupGetter__("localStorage").bind(window);
 // var storageSetter = window.__lookupSetter__("localStorage").bind(window);
 
+var originalSetItem = localStorage.setItem; 
+localStorage.setItem = function(){
+    alert.log("localstorage set item");
+    originalSetItem.apply(this, arguments);
+}
+
 //console.log(window.__lookupGetter__("localStorage"));
 Object.defineProperty(document, 'cookie', {
     get: function() {
