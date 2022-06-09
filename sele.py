@@ -44,7 +44,7 @@ for i in df.index:
             driver.get(r'https://www.'+ df['website'][i])
             
             # sleep
-            time.sleep(200)
+            time.sleep(10)
             
             # dictionary collecting logs
             # 1: Logs 2: PageSource 
