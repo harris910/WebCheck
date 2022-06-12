@@ -14,5 +14,8 @@
         "express": "^4.17.1",
         "jsonfile": "^6.1.0",
         "mongodb": "^3.6.4"
+    },
+    "devDependencies": {
+        "husky": "^8.0.1"
     }
 }
