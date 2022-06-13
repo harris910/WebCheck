@@ -101,25 +101,25 @@ function onEvent(debuggeeId, message, params) {
         console.log("Request complete! response");
       }); 
   }
-  // else if (message == "Network.requestWillBeSentExtraInfo"){
-  //   fetch("http://localhost:3000/requestinfo", {
-  //     method: "POST", 
-  //     body: JSON.stringify({
-  //     "request_id":params.requestId,
-  //     "cookies": params.associatedCookies,
-  //     "headers":params.headers,
-  //     "connectTiming":params.connectTiming,
-  //     "clientSecurityState": params.clientSecurityState}),
-  //     mode: 'cors',
-  //     headers: {
-  //       'Access-Control-Allow-Origin':'*',
-  //       "Content-Type": "application/json"
-  //     }
-  //   }).then(res => {
-  //     console.log("RequestInfo complete! response");
-  //   }); 
+  else if (message == "Network.requestWillBeSentExtraInfo"){
+    fetch("http://localhost:3000/requestinfo", {
+      method: "POST", 
+      body: JSON.stringify({
+      "request_id":params.requestId,
+      "cookies": params.associatedCookies,
+      "headers":params.headers,
+      "connectTiming":params.connectTiming,
+      "clientSecurityState": params.clientSecurityState}),
+      mode: 'cors',
+      headers: {
+        'Access-Control-Allow-Origin':'*',
+        "Content-Type": "application/json"
+      }
+    }).then(res => {
+      console.log("RequestInfo complete! response");
+    }); 
 
-  // }
+  }
   else if (message == "Network.responseReceived") {
       chrome.debugger.sendCommand({
           tabId: tabId
