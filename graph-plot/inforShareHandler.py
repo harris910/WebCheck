@@ -5,23 +5,24 @@
 """
 request_id = ['dc=was1; tuuid=8355a7eb-f3f1-532f-bfb3-c90fddbef41e; ut=Yg09EQAD_3D4aehR4WmgY-sH2xPg1BHtDBH8KA==; ss=1', ..]
 """
-def getReqCookie(request_id):
-  lst = []
-  with open(r'server/requestInfo.json') as file:
-      for line in file:
-        dataset = json.loads(line)
-        if dataset['request_id'] == request_id:
-          if "cookie" in dataset["headers"].keys():
-            lst.append(dataset["headers"]["cookie"])
-  return lst
 
+
+def getReqCookie(request_id):
+    lst = []
+    with open(r"server/requestInfo.json") as file:
+        for line in file:
+            dataset = json.loads(line)
+            if dataset["request_id"] == request_id:
+                if "cookie" in dataset["headers"].keys():
+                    lst.append(dataset["headers"]["cookie"])
+    return lst
 
 
 # Function checks if storage key-value is shared in url or not
 def IsInfoShared(storage_dic, url):
-  for key in storage_dic:
-    for item in storage_dic[key]:
-      if item in url:
-        return key
-  
-  return None
+    for key in storage_dic:
+        for item in storage_dic[key]:
+            if item in url:
+                return key
+
+    return None

@@ -57,12 +57,14 @@
 }
 
 """
+
+
 def getRedirection(request_id, request_url):
-  with open(r'server/responses.json') as file:
-      for line in file:
-        dataset = json.loads(line)
-        if dataset['request_id'] == request_id:
-          if dataset["response"]["url"] != request_url:
-            return dataset["response"]["url"] 
-          else:
-            return None
+    with open(r"server/responses.json") as file:
+        for line in file:
+            dataset = json.loads(line)
+            if dataset["request_id"] == request_id:
+                if dataset["response"]["url"] != request_url:
+                    return dataset["response"]["url"]
+                else:
+                    return None

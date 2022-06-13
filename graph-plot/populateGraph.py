@@ -1,5 +1,5 @@
 # This file contains the logic to populate edges and nodes in the graph of the webpage.
-
+import json
 
 def addNode(nodes, name, type, TC, FC, classlabel, label):
     if name not in nodes.keys():

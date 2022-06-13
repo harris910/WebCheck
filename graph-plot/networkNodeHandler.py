@@ -125,8 +125,10 @@
 }
 }
 """
+
+
 def getInitiator(stack):
-    if len(stack['callFrames']) != 0:
-      return stack['callFrames'][0]['url']
+    if len(stack["callFrames"]) != 0:
+        return stack["callFrames"][0]["url"]
     else:
-      return getInitiator(stack["parent"])
+        return getInitiator(stack["parent"])
