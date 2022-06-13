@@ -1,3 +1,6 @@
+# This files contains the logic to handle the redirection edge in the graph
+import json
+
 # getting the redirection link. Sample object attached below:
 """
 {
@@ -59,8 +62,8 @@
 """
 
 
-def getRedirection(request_id, request_url):
-    with open(r"server/responses.json") as file:
+def getRedirection(request_id, request_url, page_url):
+    with open(page_url + "responses.json") as file:
         for line in file:
             dataset = json.loads(line)
             if dataset["request_id"] == request_id:

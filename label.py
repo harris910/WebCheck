@@ -5,12 +5,9 @@ import numpy as np
 import os
 import json
 import math
-import requests
 import time
 import tldextract
 import traceback
-import xlsxwriter
-import os
 from urllib.parse import urlparse
 from adblockparser import AdblockRules
 
@@ -27,20 +24,22 @@ def getRules(filename):
     df = pd.read_excel(filename)
     rules = []
     for i in df.index:
-        rules.append(df['url'][i])
+        rules.append(df["url"][i])
     Rules = AdblockRules(rules)
     return Rules
 
+
 # Description: setting predefined rules
-easylist = getRules('EasyPrivacyList.xlsx')
-easyPrivacylist = getRules('easyList.xlsx')
+easylist = getRules("EasyPrivacyList.xlsx")
+easyPrivacylist = getRules("easyList.xlsx")
 
 # Description: extract domain from given url
 # input: url = url for which domain is needed
 # return: domain
 def getDomain(url):
     ext = tldextract.extract(url)
-    return ext.domain+"."+ext.suffix
+    return ext.domain + "." + ext.suffix
+
 
 # Description: check if its thirparty request
 # input: url = url
@@ -54,6 +53,7 @@ def isThirdPartyReq(url, top_level_url):
     else:
         return True
 
+
 # Description: check if the request is tracking or non-tracking
 # input: rules = Adblock rules object
 # input: url = url
@@ -61,7 +61,17 @@ def isThirdPartyReq(url, top_level_url):
 # input: resource_type = resource_type
 # return: returns True if it has tracking status otherwise false
 def CheckTrackingReq(rules, url, top_level_url, resource_type):
-    return int(rules.should_block(url, { resource_type: resource_type, 'domain' : getDomain(url), 'third-party': isThirdPartyReq(url, top_level_url) }))
+    return int(
+        rules.should_block(
+            url,
+            {
+                resource_type: resource_type,
+                "domain": getDomain(url),
+                "third-party": isThirdPartyReq(url, top_level_url),
+            },
+        )
+    )
+
 
 """#### Check Ancestor Nodes for Tracking Behavior
 `CheckAncestoralNodes(df, row.call_stack)`
@@ -74,26 +84,32 @@ def CheckTrackingReq(rules, url, top_level_url, resource_type):
 # input: dataset = complete http_req table with easylist and easyprivacylist flags
 # input: callstack = call stack object as shown above
 # return: it returns 1 if any ancestoral node has tracking status otherwise 0
-def CheckAncestoralNodes(dataset,callstack):
-  # handling non-script type
-  if callstack['type'] != 'script': return None
-  # unique scripts in the stack
-  unique_scripts = []
-  # recursively insert unique scripts in the stack
-  rec_stack_checker(callstack["stack"], unique_scripts)
-  # check the tracking status of the unique scripts
-  return check_script_url(dataset, unique_scripts)
+def CheckAncestoralNodes(dataset, callstack):
+    # handling non-script type
+    if callstack["type"] != "script":
+        return None
+    # unique scripts in the stack
+    unique_scripts = []
+    # recursively insert unique scripts in the stack
+    rec_stack_checker(callstack["stack"], unique_scripts)
+    # check the tracking status of the unique scripts
+    return check_script_url(dataset, unique_scripts)
+
 
 # Description: Search the tracking status for each unique script url's in the stack
 # input: dataset = complete http_req table with easylist and easyprivacylist flags
 # input: unique_scripts = unique scripts in the given stack
 # return: it returns 1 if any unique script url has tracking status otherwise 0
 def check_script_url(dataset, unique_scripts):
-  for i in range(len(unique_scripts)):
-    for j in dataset.index:
-      if dataset['http_req'][j] == unique_scripts[i]:
-        if dataset['easylistflag'][j] == 1 or dataset['easyprivacylistflag'][j] == 1: return 1
-  return 0
+    for i in range(len(unique_scripts)):
+        for j in dataset.index:
+            if dataset["http_req"][j] == unique_scripts[i]:
+                if (
+                    dataset["easylistflag"][j] == 1
+                    or dataset["easyprivacylistflag"][j] == 1
+                ):
+                    return 1
+    return 0
 
 
 # Description: it appends the unique script url's recursively
@@ -101,14 +117,16 @@ def check_script_url(dataset, unique_scripts):
 # input: unique_scripts = unique scripts in the given stack
 # return: nothing
 def rec_stack_checker(stack, unique_scripts):
-  # append unique script_url's
-  for item in stack['callFrames']:
-    if item['url'] not in unique_scripts:
-      unique_scripts.append(item['url'])
-  # if parent object doen't exist return (base-case)
-  if 'parent' not in stack.keys(): return
-  # else send a recursive call for this
-  else: rec_stack_checker(stack['parent'], unique_scripts)
+    # append unique script_url's
+    for item in stack["callFrames"]:
+        if item["url"] not in unique_scripts:
+            unique_scripts.append(item["url"])
+    # if parent object doen't exist return (base-case)
+    if "parent" not in stack.keys():
+        return
+    # else send a recursive call for this
+    else:
+        rec_stack_checker(stack["parent"], unique_scripts)
 
 
 """### DataFrame to Excel
@@ -123,9 +141,12 @@ def rec_stack_checker(stack, unique_scripts):
 # input: filename = name of the csv file 'test.xlsx'
 # return: nothing
 def df_to_excel(dataset, filename):
-  writer = pd.ExcelWriter(filename, engine='xlsxwriter',options={'strings_to_urls': False})
-  dataset.to_excel(writer)
-  writer.close()
+    writer = pd.ExcelWriter(
+        filename, engine="xlsxwriter", options={"strings_to_urls": False}
+    )
+    dataset.to_excel(writer)
+    writer.close()
+
 
 """#### Intilization
 Pass complete dataset and it will add columns for:
@@ -144,53 +165,35 @@ All of these are boolean(0/1) flags where:
 # Description: Handles all initilization process like EasyList, EasyPrivacyList, Ancestor Flags
 # input: JSONfile_path = file containg the http request data
 # return: returns updated dataframe
-def intilization(JSONfile_path):
+def intilization(JSONfile_path, folder):
     # # reading file as dataframe
-    site = os.listdir('output')
-    #site = pd.read_csv(r'9.csv')
-    #site = pd.DataFrame([['arabic.chat'], ['cmovies.online']], columns=['website'])
-    count = 0
-    # returning dataset
-    retDataset = pd.DataFrame()
+    dataset = pd.read_json(JSONfile_path, lines=True)
 
-    
+    # adding easylistflag column
+    dataset["easylistflag"] = dataset.apply(
+        lambda row: CheckTrackingReq(
+            easylist, row.http_req, row.frame_url, row.resource_type
+        ),
+        axis=1,
+    )
 
-    # extracting site by site data and labelling
-    for item in site:
-        item = item.split('.csv')[0]
-        print(item)
-        try:
-            data = []
-            with open(JSONfile_path) as file:
-                for line in file:
-                    req = json.loads(line)
-                    if req['top_level_url'] == item:
-                        data.append(req)
-            dataset = pd.DataFrame(data)
-            # dataset = df.loc[df['top_level_url'] == site]
-            # adding easylistflag column
-            dataset['easylistflag'] = dataset.apply(
-                lambda row: CheckTrackingReq(easylist, row.http_req, row.frame_url, row.resource_type), axis=1)
+    # adding easyprivacylistflag column
+    dataset["easyprivacylistflag"] = dataset.apply(
+        lambda row: CheckTrackingReq(
+            easyPrivacylist, row.http_req, row.frame_url, row.resource_type
+        ),
+        axis=1,
+    )
 
-            # adding easyprivacylistflag column
-            dataset['easyprivacylistflag'] = dataset.apply(
-                lambda row: CheckTrackingReq(easyPrivacylist, row.http_req, row.frame_url, row.resource_type), axis=1)
+    # adding ancestor flag column
+    dataset["ancestorflag"] = dataset.apply(
+        lambda row: CheckAncestoralNodes(dataset, row.call_stack), axis=1
+    )
 
-            dataset["ancestorflag"] = dataset.apply(lambda row: CheckAncestoralNodes(dataset, row.call_stack), axis=1)
-            retDataset = retDataset.append(dataset)
-            # retDataset.reset_index(inplace=True)
-            # df_to_excel(retDataset, r'labellings.xlsx')
-            retDataset.to_json(r'labellings.json', orient='records')
-            count +=1
-            with open("logs.txt", "w") as log: log.write(
-                "\nCompleted: "+ str(count) +" "+item); log.close()
-        except:
-            with open("error.txt", "a") as log: log.write(
-                "\n"+traceback.format_exc()); log.close()
-            with open("logs.txt", "a") as log: log.write(
-                "\nCrashed: "+ str(count) +" "+item); log.close()
+    dataset.to_json(folder + "label_request.json", orient="records")
 
 
-
-intilization('request.json')
-
+intilization(
+    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/forbes.com/request.json",
+    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/forbes.com/",
+)

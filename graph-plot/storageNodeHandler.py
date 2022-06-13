@@ -60,6 +60,7 @@ def addStorage(script_dic, storage_dic, dataset):
 
             script_url = getStorageScriptFromStack(dataset["stack"])
             storage_obj = json.dumps(dataset["storage"])
+            storage_obj = json.loads(storage_obj)
 
             if storage_obj["keyName"] not in storage_dic.keys():
                 storage_dic[storage_obj["keyName"]] = []

@@ -1,5 +1,5 @@
 # This file contains the logic for handling information sharing i.e. cookie key value pair in headers and urls
-
+import json
 
 # getting the associated cookies with the request id
 """
@@ -7,9 +7,9 @@ request_id = ['dc=was1; tuuid=8355a7eb-f3f1-532f-bfb3-c90fddbef41e; ut=Yg09EQAD_
 """
 
 
-def getReqCookie(request_id):
+def getReqCookie(request_id, page_url):
     lst = []
-    with open(r"server/requestInfo.json") as file:
+    with open(page_url + "requestInfo.json") as file:
         for line in file:
             dataset = json.loads(line)
             if dataset["request_id"] == request_id:
