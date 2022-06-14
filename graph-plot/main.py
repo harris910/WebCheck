@@ -2,7 +2,7 @@ from populateGraph import createWebGraph
 
 
 def main():
-    createWebGraph("forbes.com")
+    createWebGraph("accuweather.com")
 
 
 if __name__ == "__main__":

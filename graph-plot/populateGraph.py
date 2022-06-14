@@ -126,7 +126,11 @@ def createWebGraph(url):
 
                 # if its initiated by call stack javascript
                 # else its generated from main iframe
-                if dataset["call_stack"]["type"] == "script":
+                if (
+                    dataset["call_stack"]["type"] == "script"
+                    and "HTML@" + getInitiator(dataset["call_stack"]["stack"])
+                    not in nodes.keys()
+                ):
                     if (
                         dataset["easylistflag"] == 1
                         or dataset["easyprivacylistflag"] == 1
@@ -187,7 +191,9 @@ def createWebGraph(url):
     json.dump(nodes, open(folder + "nodes.json", "w"))
     json.dump(edges, open(folder + "edges.json", "w"))
 
-    plot = Digraph(comment="The Round Table")
+    plot = Digraph(
+        comment="The Round Table", graph_attr={"overlap": "false", "splines": "true"}
+    )
 
     for key in nodes:
 
@@ -231,14 +237,14 @@ def createWebGraph(url):
         if edges[key][2] == "Network->HTML/Script":
             plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
         elif edges[key][2] == "Info Shared":
-            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="diamond")
+            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
         elif edges[key][2] == "Initiated":
-            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="tee")
+            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
         elif edges[key][2] == "Redirection":
-            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="halfopen")
+            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
         elif edges[key][2] == "Storage Getter":
-            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="crow")
+            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
         else:
-            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="crow")
+            plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
 
     plot.render(folder + "graph.gv.json", view=True)

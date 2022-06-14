@@ -83,14 +83,14 @@ def addStorage(script_dic, storage_dic, dataset):
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
 # return https://c.amazon-adsystem.com/aax2/apstag.js
 def getStorageScriptFromStack(script):
-    script = script.split("\n")[2]
     try:
+        script = script.split("\n")[2]
         script = script.split("(")[
             1
         ]  # https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
+        return "https:" + script.split(":")[1]
     except:
         pass
-    return "https:" + script.split(":")[1]
 
 
 # see if same storage node is used but small substring is removed

@@ -194,6 +194,6 @@ def intilization(JSONfile_path, folder):
 
 
 intilization(
-    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/forbes.com/request.json",
-    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/forbes.com/",
+    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/accuweather.com/request.json",
+    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/accuweather.com/",
 )
