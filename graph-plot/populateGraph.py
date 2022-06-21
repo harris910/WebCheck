@@ -55,6 +55,23 @@ def createWebGraph(url):
     for key in storage_dic:
         addNode(nodes, "Storage@" + key, "Storage", 0, 0, -3)
 
+    # cookie set by inline JavaScript
+    if "https://www." + url + "/" in script_dic.keys():
+        for cookie_set in script_dic["https://www." + url + "/"][0]:
+            addEdge(
+                edges,
+                nodes["HTML@" + "https://www." + url + "/"][0],
+                nodes["Storage@" + cookie_set][0],
+                "Storage Setter",
+            )
+        for cookie_Get in script_dic["https://www." + url + "/"][1]:
+            addEdge(
+                edges,
+                nodes["Storage@" + cookie_set][0],
+                nodes["HTML@" + "https://www." + url + "/"][0],
+                "Storage Setter",
+            )
+
     # reading big request data line by line
     with open(folder + "label_request.json") as file:
         for line in file:
