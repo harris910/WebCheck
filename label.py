@@ -193,7 +193,19 @@ def intilization(JSONfile_path, folder):
     dataset.to_json(folder + "label_request.json", orient="records")
 
 
-intilization(
-    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/accuweather.com/request.json",
-    "/Users/haadi/Desktop/webpage-crawler-extension/server/output/accuweather.com/",
-)
+def main():
+    fold = os.listdir("/Users/haadi/Desktop/webpage-crawler-extension/server/output")
+    for f in fold:
+        if ".com" in f:
+            print(f)
+            intilization(
+                "/Users/haadi/Desktop/webpage-crawler-extension/server/output/"
+                + f
+                + "/request.json",
+                "/Users/haadi/Desktop/webpage-crawler-extension/server/output/"
+                + f
+                + "/",
+            )
+
+
+main()
