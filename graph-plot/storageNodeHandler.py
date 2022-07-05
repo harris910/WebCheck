@@ -22,7 +22,7 @@ def addStorage(script_dic, storage_dic, dataset):
         if dataset["cookie"] != "":
 
             if dataset["cookie"].split("=")[0].strip() not in storage_dic.keys():
-                storage_dic[dataset["cookie"].split("=")[0].strip()] = []
+                storage_dic[dataset["cookie"].split("=")[0].strip()] = ["cookie_setter"]
             if (
                 dataset["cookie"].split(";")[0].split("=")[1]
                 not in storage_dic[dataset["cookie"].split("=")[0].strip()]
@@ -46,7 +46,7 @@ def addStorage(script_dic, storage_dic, dataset):
             lst = dataset["cookie"].split(";")
             for item in lst:
                 if item.split("=")[0].strip() not in storage_dic.keys():
-                    storage_dic[item.split("=")[0].strip()] = []
+                    storage_dic[item.split("=")[0].strip()] = ["cookie_getter"]
                 if item.split("=")[1] not in storage_dic[item.split("=")[0].strip()]:
                     storage_dic[item.split("=")[0].strip()].append(item.split("=")[1])
 
@@ -62,20 +62,20 @@ def addStorage(script_dic, storage_dic, dataset):
             storage_obj = json.dumps(dataset["storage"])
             storage_obj = json.loads(storage_obj)
 
-            if storage_obj["keyName"] not in storage_dic.keys():
-                storage_dic[storage_obj["keyName"]] = []
-            if dataset["function"] == "storage_setter":
-                if storage_obj["keyValue"] not in storage_dic[storage_obj["keyName"]]:
-                    storage_dic[storage_obj["keyName"]].append(storage_obj["keyValue"])
-
             if script_url not in script_dic.keys():
                 script_dic[script_url] = [[], []]
 
             if dataset["function"] == "storage_setter":
+                if storage_obj["keyName"] not in storage_dic.keys():
+                    storage_dic[storage_obj["keyName"]] = ["storage_setter"]
                 if storage_obj["keyName"] not in script_dic[script_url][0]:
                     script_dic[script_url][0].append(storage_obj["keyName"])
+                if storage_obj["keyValue"] not in storage_dic[storage_obj["keyName"]]:
+                    storage_dic[storage_obj["keyName"]].append(storage_obj["keyValue"])
 
             if dataset["function"] == "storage_getter":
+                if storage_obj["keyName"] not in storage_dic.keys():
+                    storage_dic[storage_obj["keyName"]] = ["storage_getter"]
                 if storage_obj["keyName"] not in script_dic[script_url][1]:
                     script_dic[script_url][1].append(storage_obj["keyName"])
 
