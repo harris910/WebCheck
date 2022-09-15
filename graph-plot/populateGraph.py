@@ -4,7 +4,7 @@ import numpy as np
 from storageNodeHandler import addStorage, getStorageDic
 from inforShareHandler import getReqCookie, IsInfoShared
 from redirectionEdgeHandler import getRedirection
-from networkNodeHandler import getInitiator
+from networkNodeHandler import getInitiator, getInitiatorURL
 from graphviz import Digraph
 
 # node labels
@@ -28,7 +28,11 @@ def addEdge(edges, src, tar, type):
 
 def createWebGraph(url):
 
-    folder = "/Users/haadi/Desktop/webpage-crawler-extension/server/output/" + url + "/"
+    folder = (
+        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
+        + url
+        + "/"
+    )
 
     # name: [id, type, TC, FC, label]
     nodes = {}
@@ -43,7 +47,7 @@ def createWebGraph(url):
     src = addNode(nodes, "Network@https://www." + url + "/", "Network", 0, 0, -1)
     tar = addNode(nodes, "HTML@https://www." + url + "/", "HTML@iframe", 0, 0, -2)
     addEdge(edges, src, tar, "Network->HTML/Script")
-    src = addNode(nodes, "Script@https://" + url + "/", "Script", 0, 0, 0)
+    src = addNode(nodes, "Script@https://www." + url + "/", "Script", 0, 0, 0)
     addEdge(edges, tar, src, "Initiated")
 
     # creating storage nodes and edges
@@ -54,6 +58,20 @@ def createWebGraph(url):
                 addStorage(script_dic, storage_dic, dataset)
     for key in storage_dic:
         addNode(nodes, "Storage@" + key, "Storage", 0, 0, -3)
+
+    # creating edges btw script method and storage nodes
+    for key in script_dic:
+        if key is not None:
+            src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            # adding script and method relationship
+            addEdge(edges, src, src2, "partof")
+            # adding cookie setter and method realtionship
+            for item in script_dic[key][0]:
+                addEdge(edges, src2, nodes["Storage@" + item][0], "Storage Setter")
+            # adding cookie getter and method realtionship
+            for item in script_dic[key][1]:
+                addEdge(edges, nodes["Storage@" + item][0], src2, "Storage Getter")
 
     # cookie set by inline JavaScript
     if "https://www." + url + "/" in script_dic.keys():
@@ -155,7 +173,16 @@ def createWebGraph(url):
                     ):
                         tar = addNode(
                             nodes,
-                            "Script@" + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod@"
+                            + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod",
+                            1,
+                            0,
+                            0,
+                        )
+                        tar2 = addNode(
+                            nodes,
+                            "Script@" + getInitiatorURL(dataset["call_stack"]["stack"]),
                             "Script",
                             1,
                             0,
@@ -164,13 +191,23 @@ def createWebGraph(url):
                     else:
                         tar = addNode(
                             nodes,
-                            "Script@" + getInitiator(dataset["call_stack"]["stack"]),
-                            "Script",
+                            "ScriptMethod@"
+                            + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod",
                             0,
                             1,
                             0,
                         )
+                        tar2 = addNode(
+                            nodes,
+                            "Script@" + getInitiatorURL(dataset["call_stack"]["stack"]),
+                            "Script",
+                            1,
+                            0,
+                            0,
+                        )
                     addEdge(edges, tar, src, "Initiated")
+                    addEdge(edges, tar2, tar, "partof")
                 else:
                     addEdge(
                         edges,
@@ -179,26 +216,26 @@ def createWebGraph(url):
                         "Initiated",
                     )
 
-                # Links between storage nodes and script [setter, getter]
-                if dataset["http_req"] in script_dic.keys():
-                    # script -> setter
-                    if len(script_dic[dataset["http_req"]][0]) != 0:
-                        for item in script_dic[dataset["http_req"]][0]:
-                            addEdge(
-                                edges,
-                                nodes["Script@" + dataset["http_req"]][0],
-                                nodes["Storage@" + item][0],
-                                "Storage Setter",
-                            )
-                    # getter -> script
-                    if len(script_dic[dataset["http_req"]][1]) != 0:
-                        for item in script_dic[dataset["http_req"]][1]:
-                            addEdge(
-                                edges,
-                                nodes["Storage@" + item][0],
-                                nodes["Script@" + dataset["http_req"]][0],
-                                "Storage Getter",
-                            )
+                # # Links between storage nodes and script [setter, getter]
+                # if dataset["http_req"] in script_dic.keys():
+                #     # script -> setter
+                #     if len(script_dic[dataset["http_req"]][0]) != 0:
+                #         for item in script_dic[dataset["http_req"]][0]:
+                #             addEdge(
+                #                 edges,
+                #                 nodes["Script@" + dataset["http_req"]][0],
+                #                 nodes["Storage@" + item][0],
+                #                 "Storage Setter",
+                #             )
+                #     # getter -> script
+                #     if len(script_dic[dataset["http_req"]][1]) != 0:
+                #         for item in script_dic[dataset["http_req"]][1]:
+                #             addEdge(
+                #                 edges,
+                #                 nodes["Storage@" + item][0],
+                #                 nodes["Script@" + dataset["http_req"]][0],
+                #                 "Storage Getter",
+                #             )
 
                 # if url has storage info
                 val = IsInfoShared(storage_dic, dataset["http_req"])
@@ -207,6 +244,8 @@ def createWebGraph(url):
 
     json.dump(nodes, open(folder + "nodes.json", "w"))
     json.dump(edges, open(folder + "edges.json", "w"))
+    json.dump(script_dic, open(folder + "script.json", "w"))
+    json.dump(storage_dic, open(folder + "storage.json", "w"))
 
     plot = Digraph(
         comment="The Round Table", graph_attr={"overlap": "false", "splines": "true"}
@@ -214,7 +253,7 @@ def createWebGraph(url):
 
     for key in nodes:
 
-        if nodes[key][1] == "Script":
+        if nodes[key][1] == "Script" or nodes[key][1] == "ScriptMethod":
             if nodes[key][4] == 1:
                 plot.node(
                     str(nodes[key][0]), str(nodes[key][0]), color="red", style="filled"
@@ -265,3 +304,4 @@ def createWebGraph(url):
             plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
 
     plot.render(folder + "graph.gv.json", view=True)
+    plot.render(folder + "graph")

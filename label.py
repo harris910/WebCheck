@@ -194,18 +194,19 @@ def intilization(JSONfile_path, folder):
 
 
 def main():
-    fold = os.listdir("/Users/haadi/Desktop/webpage-crawler-extension/server/output")
+    fold = os.listdir(
+        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output"
+    )
     for f in fold:
         if ".com" in f:
             print(f)
             intilization(
-                "/Users/haadi/Desktop/webpage-crawler-extension/server/output/"
+                "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
                 + f
                 + "/request.json",
-                "/Users/haadi/Desktop/webpage-crawler-extension/server/output/"
+                "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
                 + f
                 + "/",
             )
-
 
 main()

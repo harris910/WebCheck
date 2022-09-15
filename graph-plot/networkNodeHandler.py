@@ -129,6 +129,15 @@
 
 def getInitiator(stack):
     if len(stack["callFrames"]) != 0:
-        return stack["callFrames"][0]["url"]
+        return (
+            stack["callFrames"][0]["url"] + "@" + stack["callFrames"][0]["functionName"]
+        )
     else:
         return getInitiator(stack["parent"])
+
+
+def getInitiatorURL(stack):
+    if len(stack["callFrames"]) != 0:
+        return stack["callFrames"][0]["url"]
+    else:
+        return getInitiatorURL(stack["parent"])

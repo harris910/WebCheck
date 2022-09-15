@@ -3,7 +3,7 @@
 import json
 
 # storage_dic = {'_gid' = [002, 5288992, 1], '_svd' = [5]}
-# script_dic = {'https://ad/test.js': [set->[_gid,..], get->[_svd, ..]]}
+# script_dic = {'https://ad/test.js@method': [set->[_gid,..], get->[_svd, ..]]}
 def addStorage(script_dic, storage_dic, dataset):
     """
     {"top_level_url":"https://cmovies.online/","function":"cookie_setter","cookie":"__PPU_BACKCLCK_3714332=true; expires=Wed, 16 Feb 2022 19:06:24 GMT; path=/; domain=cmovies.online","stack":"Error\n    at HTMLDocument.set (chrome-extension://pibhebgeoaejhpkdfhfgpmhjnfjefafc/inject.js:39:17)\n    at e.<computed>.<computed> [as saveSessionCustomKey] (https://lurgaimt.net/tag.min.js:1:43145)\n    at https://lurgaimt.net/tag.min.js:1:47814\n    at _ (https://lurgaimt.net/tag.min.js:1:8934)\n    at https://lurgaimt.net/tag.min.js:1:47689\n    at ln (https://lurgaimt.net/tag.min.js:1:48253)\n    at HTMLScriptElement.g (https://cmovies.online/:1630:60191)"}
@@ -57,7 +57,6 @@ def addStorage(script_dic, storage_dic, dataset):
 
     else:
         if dataset["storage"] != "":
-
             script_url = getStorageScriptFromStack(dataset["stack"])
             storage_obj = json.dumps(dataset["storage"])
             storage_obj = json.loads(storage_obj)
@@ -81,14 +80,15 @@ def addStorage(script_dic, storage_dic, dataset):
 
 
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
-# return https://c.amazon-adsystem.com/aax2/apstag.js
+# return https://c.amazon-adsystem.com/aax2/apstag.js@l
 def getStorageScriptFromStack(script):
     try:
         script = script.split("\n")[2]
+        method = script.split("(")[0].strip().split(" ")[1]  # l
         script = script.split("(")[
             1
         ]  # https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
-        return "https:" + script.split(":")[1]
+        return "https:" + script.split(":")[1] + "@" + method
     except:
         pass
 

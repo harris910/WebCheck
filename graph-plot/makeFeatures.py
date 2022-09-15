@@ -5,7 +5,7 @@ import requests
 from storageNodeHandler import addStorage, getStorageDic
 from inforShareHandler import getReqCookie, IsInfoShared
 from redirectionEdgeHandler import getRedirection
-from networkNodeHandler import getInitiator
+from networkNodeHandler import getInitiator, getInitiatorURL
 from graphviz import Digraph
 
 # node labels
@@ -49,13 +49,17 @@ def getDecendantsCount(node, adjEdges, visited, count):
 
 def createGraphFeatures(url):
 
-    folder = "/Users/haadi/Desktop/webpage-crawler-extension/server/output/" + url + "/"
+    folder = (
+        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
+        + url
+        + "/"
+    )
 
     # name: [id, type, TC, FC, label]
     nodes = {}
     # src@tar = [src_id, tar_id, type]
     edges = {}
-    # script_dic = {'https://ad/test.js': [set->[_gid,..], get->[_svd, ..]]}
+    # script_dic = {'https://ad/test.js@method': [set->[_gid,..], get->[_svd, ..]]}
     script_dic = {}
     # storage_dic = {'_gid' = ["cookie getter/setter",002, 5288992, 1], '_svd' = ["storage getter/setter",5]}
     storage_dic = {}
@@ -76,6 +80,20 @@ def createGraphFeatures(url):
     for key in storage_dic:
         addNode(nodes, "Storage@" + key, "Storage", 0, 0, -3)
 
+    # creating edges btw script method and storage nodes
+    for key in script_dic:
+        if key is not None:
+            src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            # adding script and method relationship
+            addEdge(edges, src, src2, "partof")
+            # adding cookie setter and method realtionship
+            for item in script_dic[key][0]:
+                addEdge(edges, src2, nodes["Storage@" + item][0], "Storage Setter")
+            # adding cookie getter and method realtionship
+            for item in script_dic[key][0]:
+                addEdge(edges, nodes["Storage@" + item][0], src2, "Storage Getter")
+
     # cookie set/get by inline JavaScript
     if "https://www." + url + "/" in script_dic.keys():
         for cookie_set in script_dic["https://www." + url + "/"][0]:
@@ -85,12 +103,12 @@ def createGraphFeatures(url):
                 nodes["Storage@" + cookie_set][0],
                 "Storage Setter",
             )
-        for cookie_Get in script_dic["https://www." + url + "/"][1]:
+        for cookie_get in script_dic["https://www." + url + "/"][1]:
             addEdge(
                 edges,
-                nodes["Storage@" + cookie_set][0],
+                nodes["Storage@" + cookie_get][0],
                 nodes["HTML@" + "https://www." + url + "/"][0],
-                "Storage Setter",
+                "Storage Getter",
             )
 
     # reading big request data line by line
@@ -167,7 +185,7 @@ def createGraphFeatures(url):
                 # else its generated from main iframe
                 if (
                     dataset["call_stack"]["type"] == "script"
-                    and "HTML@" + getInitiator(dataset["call_stack"]["stack"])
+                    and "HTML@" + getInitiatorURL(dataset["call_stack"]["stack"])
                     not in nodes.keys()
                 ):
                     if (
@@ -177,7 +195,16 @@ def createGraphFeatures(url):
                     ):
                         tar = addNode(
                             nodes,
-                            "Script@" + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod@"
+                            + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod",
+                            1,
+                            0,
+                            0,
+                        )
+                        tar2 = addNode(
+                            nodes,
+                            "Script@" + getInitiatorURL(dataset["call_stack"]["stack"]),
                             "Script",
                             1,
                             0,
@@ -186,13 +213,23 @@ def createGraphFeatures(url):
                     else:
                         tar = addNode(
                             nodes,
-                            "Script@" + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod@"
+                            + getInitiator(dataset["call_stack"]["stack"]),
+                            "ScriptMethod",
+                            0,
+                            1,
+                            0,
+                        )
+                        tar2 = addNode(
+                            nodes,
+                            "Script@" + getInitiatorURL(dataset["call_stack"]["stack"]),
                             "Script",
                             0,
                             1,
                             0,
                         )
                     addEdge(edges, tar, src, "Initiated")
+                    addEdge(edges, tar2, tar, "partof")
                 else:
                     addEdge(
                         edges,
@@ -201,26 +238,26 @@ def createGraphFeatures(url):
                         "Initiated",
                     )
 
-                # Links between storage nodes and script [setter, getter]
-                if dataset["http_req"] in script_dic.keys():
-                    # script -> setter
-                    if len(script_dic[dataset["http_req"]][0]) != 0:
-                        for item in script_dic[dataset["http_req"]][0]:
-                            addEdge(
-                                edges,
-                                nodes["Script@" + dataset["http_req"]][0],
-                                nodes["Storage@" + item][0],
-                                "Storage Setter",
-                            )
-                    # getter -> script
-                    if len(script_dic[dataset["http_req"]][1]) != 0:
-                        for item in script_dic[dataset["http_req"]][1]:
-                            addEdge(
-                                edges,
-                                nodes["Storage@" + item][0],
-                                nodes["Script@" + dataset["http_req"]][0],
-                                "Storage Getter",
-                            )
+                # # Links between storage nodes and script [setter, getter]
+                # if dataset["http_req"] in script_dic.keys():
+                #     # script -> setter
+                #     if len(script_dic[dataset["http_req"]][0]) != 0:
+                #         for item in script_dic[dataset["http_req"]][0]:
+                #             addEdge(
+                #                 edges,
+                #                 nodes["Script@" + dataset["http_req"]][0],
+                #                 nodes["Storage@" + item][0],
+                #                 "Storage Setter",
+                #             )
+                #     # getter -> script
+                #     if len(script_dic[dataset["http_req"]][1]) != 0:
+                #         for item in script_dic[dataset["http_req"]][1]:
+                #             addEdge(
+                #                 edges,
+                #                 nodes["Storage@" + item][0],
+                #                 nodes["Script@" + dataset["http_req"]][0],
+                #                 "Storage Getter",
+                #             )
 
                 # if url has storage info
                 val = IsInfoShared(storage_dic, dataset["http_req"])

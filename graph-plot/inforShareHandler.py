@@ -22,7 +22,7 @@ def getReqCookie(request_id, page_url):
 def IsInfoShared(storage_dic, url):
     for key in storage_dic:
         for item in storage_dic[key]:
-            if item in url:
+            if str(item) in url:
                 return key
 
     return None
