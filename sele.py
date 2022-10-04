@@ -15,7 +15,7 @@ import os
 
 # df = pd.read_csv(r'3.csv')
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([["bundle.com"]], columns=["website"])
+df = pd.DataFrame([["nbcnews.com"]], columns=["website"])
 
 
 count = 0
