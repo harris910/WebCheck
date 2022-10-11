@@ -90,27 +90,29 @@ function onEvent(debuggeeId, message, params) {
     if (tabId != debuggeeId.tabId)
         return;
     if (message == "Network.requestWillBeSent") {
-        fetch(`http://localhost:${port}/request`, {
-            method: "POST",
-            body: JSON.stringify({
-                "http_req": params.request.url,
-                "request_id": params.requestId,
-                "top_level_url": 0,
-                "frame_url": params.documentURL,
-                "resource_type": params.type,
-                "header": params.request.headers,
-                "timestamp": params.timestamp,
-                "frameId": params.frameId,
-                "call_stack": params.initiator
-            }),
-            mode: 'cors',
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                "Content-Type": "application/json"
-            }
-        }).then(res => {
-            console.log("Request complete! response");
-        });
+        if (!params.request.url.includes('localhost')) {
+            fetch(`http://localhost:${port}/request`, {
+                method: "POST",
+                body: JSON.stringify({
+                    "http_req": params.request.url,
+                    "request_id": params.requestId,
+                    "top_level_url": 0,
+                    "frame_url": params.documentURL,
+                    "resource_type": params.type,
+                    "header": params.request.headers,
+                    "timestamp": params.timestamp,
+                    "frameId": params.frameId,
+                    "call_stack": params.initiator
+                }),
+                mode: 'cors',
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    "Content-Type": "application/json"
+                }
+            }).then(res => {
+                console.log("Request complete! response");
+            });
+        }
     } else if (message == "Network.requestWillBeSentExtraInfo") {
         fetch(`http://localhost:${port}/requestinfo`, {
             method: "POST",
@@ -154,57 +156,66 @@ function onEvent(debuggeeId, message, params) {
             });
         });
     }
-    var location = {
-        start: {
-            lineNumber: 0,
-            scriptId: "118"
-        }
-    };
 
-    // if(message == "Debugger.scriptParsed"){
-    //   // var location  = {
-    //   //   start:{
-    //   //   lineNumber: params.startLine,
-    //   //   scriptId : params.scriptId
-    //   // }};
-
-    //   chrome.debugger.sendCommand({tabId:debuggeeId.tabId}, 'Debugger.getPossibleBreakpoints', location, (resp) => {
-    //     if (chrome.runtime.lastError) {
-    //       console.log(chrome.runtime.lastError.message);
-    //   }
-    //   for (let i = 0; i < resp.locations.length; i++){
-    //       var locat =  {location:resp.locations[i]};
-
-    //       chrome.debugger.sendCommand({tabId:debuggeeId.tabId}, 'Debugger.setBreakpoint', locat, (resp) => {
-    //         if (chrome.runtime.lastError) {
-    //           console.log(chrome.runtime.lastError.message);}
-    //       });
-    //     }
-    //   });
+    if (message == "Debugger.scriptParsed") {
+        const url = chrome.extension.getURL('breakpoint.json');
+        fetch(url)
+            .then((response) => response.json())
+            .then((json) => {
+                for (let i = 0; i < json.length; i++) {
+                    if (json[i].url == params.url) {
+                        console.log("hadi");
+                        chrome.debugger.sendCommand({
+                            tabId: debuggeeId.tabId
+                        }, 'Debugger.setBreakpointByUrl', json[i], (resp) => {
+                            if (chrome.runtime.lastError) {
+                                console.log(chrome.runtime.lastError.message);
+                            }
+                        })
+                    }
+                }
+            });
 
 
-    // }
+        //   chrome.debugger.sendCommand({tabId:debuggeeId.tabId}, 'Debugger.getPossibleBreakpoints', location, (resp) => {
+        //     if (chrome.runtime.lastError) {
+        //       console.log(chrome.runtime.lastError.message);
+        //   }
+        //   for (let i = 0; i < resp.locations.length; i++){
+        //       var locat =  {location:resp.locations[i]};
 
-    // if(message == "Debugger.paused"){
-    //   console.log(Runtime.StackTrace);
-    //   fetch(`http://localhost:${port}/debug`, {
-    //               method: "POST", 
-    //               body: JSON.stringify({
-    //               "reason":params.reason,
-    //               "heap":Runtime.StackTrace,
-    //               "data":params.data,
-    //               "stack":params.asyncStackTrace
-    //             }),
-    //               mode: 'cors',
-    //               headers: {
-    //                 'Access-Control-Allow-Origin':'*',
-    //                 "Content-Type": "application/json"
-    //               }
-    //             }).then(res => {
-    //               console.log(res);
-    //             });
-    //   chrome.debugger.sendCommand({tabId:debuggeeId.tabId}, 'Debugger.resume'); 
-    // }
+        //       chrome.debugger.sendCommand({tabId:debuggeeId.tabId}, 'Debugger.setBreakpoint', locat, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //           console.log(chrome.runtime.lastError.message);}
+        //       });
+        //     }
+        //   });
+
+
+    }
+
+    if (message == "Debugger.paused") {
+        fetch(`http://localhost:${port}/debug`, {
+            method: "POST",
+            body: JSON.stringify({
+                "reason": params.reason,
+                "heap": params.callFrames,
+                "data": params.data,
+                "stack": params.asyncStackTrace,
+                "hitBreakpoints": params.hitBreakpoints
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            chrome.debugger.sendCommand({
+                tabId: debuggeeId.tabId
+            }, 'Debugger.resume');
+        });
+
+    }
 
     // var continueParams = {
     //   requestId: params.requestId,
