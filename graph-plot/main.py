@@ -1,10 +1,9 @@
 from populateGraph import createWebGraph
-from makeFeatures import createGraphFeatures
 import networkx as nx
 
 
 def main():
-    createWebGraph("bundle.com")
+    createWebGraph("nbcnews.com")
     # createGraphFeatures("forbes.com")
 
 

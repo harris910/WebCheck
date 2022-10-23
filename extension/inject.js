@@ -96,7 +96,7 @@ var addEventList = EventTarget.prototype.addEventListener;
 EventTarget.prototype.addEventListener = function(type, fn, capture) {
     this.addEventList = addEventList;
     this.addEventList(type, fn, capture);
-    fetch("http://localhost:3000/event", {
+    fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
             "top_level_url": window.location.href,
@@ -104,6 +104,7 @@ EventTarget.prototype.addEventListener = function(type, fn, capture) {
             "type": type,
             "function": fn,
             "capture": capture,
+            "this": String(this),
             "stack": new Error().stack
         }),
         mode: 'cors',
@@ -120,7 +121,7 @@ var removeEventList = EventTarget.prototype.removeEventListener;
 EventTarget.prototype.removeEventListener = function(type, fn, capture) {
     this.removeEventList = removeEventList;
     this.removeEventList(type, fn, capture);
-    fetch("http://localhost:3000/event", {
+    fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
             "top_level_url": window.location.href,
@@ -128,6 +129,7 @@ EventTarget.prototype.removeEventListener = function(type, fn, capture) {
             "type": type,
             "function": fn,
             "capture": capture,
+            "this": String(this),
             "stack": new Error().stack
         }),
         mode: 'cors',
@@ -144,13 +146,14 @@ var setAttrib = Element.prototype.setAttribute;
 Element.prototype.setAttribute = function(name, value) {
     this.setAttrib = setAttrib;
     this.setAttrib(name, value);
-    fetch("http://localhost:3000/attribute", {
+    fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
             "top_level_url": window.location.href,
-            "kind": "setAttribute",
+            "event": "setAttribute",
             "name": name,
             "value": value,
+            "this": String(this),
             "stack": new Error().stack
         }),
         mode: 'cors',
@@ -167,12 +170,13 @@ var getAttrib = Element.prototype.getAttribute;
 Element.prototype.getAttribute = function(name) {
     this.getAttrib = getAttrib;
     this.getAttrib(name);
-    fetch("http://localhost:3000/attribute", {
+    fetch("http://localhost:3000/eventget", {
         method: "POST",
         body: JSON.stringify({
             "top_level_url": window.location.href,
-            "kind": "getAttribute",
+            "event": "getAttribute",
             "name": name,
+            "this": String(this),
             "stack": new Error().stack
         }),
         mode: 'cors',
@@ -189,12 +193,13 @@ var removeAttrib = Element.prototype.removeAttribute;
 Element.prototype.removeAttribute = function(name) {
     this.removeAttrib = removeAttrib;
     this.removeAttrib(name);
-    fetch("http://localhost:3000/attribute", {
+    fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
             "top_level_url": window.location.href,
-            "kind": "removeAttribute",
+            "event": "removeAttribute",
             "name": name,
+            "this": String(this),
             "stack": new Error().stack
         }),
         mode: 'cors',

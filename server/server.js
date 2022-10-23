@@ -62,8 +62,8 @@ async function debugInfo(newInfo, website) {
     })
 }
 
-async function eventInfo(newInfo, website) {
-    const file = 'output/' + website + '/event.json';
+async function insertEventSet(newInfo, website) {
+    const file = 'output/' + website + '/eventset.json';
     jsonfile.writeFile(file, newInfo, {
         flag: 'a'
     }, function(err) {
@@ -71,8 +71,8 @@ async function eventInfo(newInfo, website) {
     })
 }
 
-async function attribInfo(newInfo, website) {
-    const file = 'output/' + website + '/attribute.json';
+async function insertEventGet(newInfo, website) {
+    const file = 'output/' + website + '/eventget.json';
     jsonfile.writeFile(file, newInfo, {
         flag: 'a'
     }, function(err) {
@@ -109,14 +109,14 @@ app.post('/debug', (req, res) => {
     res.send("debug-success");
 })
 
-app.post('/event', (req, res) => {
-    eventInfo(req.body, website[0]);
-    res.send("event-success");
+app.post('/eventset', (req, res) => {
+    insertEventSet(req.body, website[0]);
+    res.send("eventset-success");
 })
 
-app.post('/attribute', (req, res) => {
-    attribInfo(req.body, website[0]);
-    res.send("attribute-success");
+app.post('/eventget', (req, res) => {
+    insertEventGet(req.body, website[0]);
+    res.send("eventget-success");
 })
 
 app.post('/complete', (req, res) => {

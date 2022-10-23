@@ -96,38 +96,38 @@ def visitWebsite(df):
 count = 0
 
 for i in df.index:
-try:
-    # if i < 273:
-    #     pass
-    # else:
-
-    # clear breakpoints
-    f = open(
-        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/extension/breakpoint.json",
-        "w",
-    )
-    f.write("[]")
-    f.close()
-
-    # visit website
-    visitWebsite(df)
-
-    # update breakpoints list
-    addBreakPoints("server/output/" + df["website"][i] + "/request.json")
-    # delete previous crawl
-    shutil.rmtree("server/output/" + df["website"][i])
-
-    # visit website
-    visitWebsite(df)
-
-    count += 1
-    with open("logs.txt", "w") as log:
-        log.write(str(count))
-        log.close()
-    print(r"Completed: " + str(i) + " website: " + df["website"][i])
-except:
     try:
-        driver.quit()
+        # if i < 273:
+        #     pass
+        # else:
+
+        # clear breakpoints
+        f = open(
+            "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/extension/breakpoint.json",
+            "w",
+        )
+        f.write("[]")
+        f.close()
+
+        # visit website
+        visitWebsite(df)
+
+        # update breakpoints list
+        addBreakPoints("server/output/" + df["website"][i] + "/request.json")
+        # delete previous crawl
+        shutil.rmtree("server/output/" + df["website"][i])
+
+        # visit website
+        visitWebsite(df)
+
+        count += 1
+        with open("logs.txt", "w") as log:
+            log.write(str(count))
+            log.close()
+        print(r"Completed: " + str(i) + " website: " + df["website"][i])
     except:
-        pass
-    print(r"Crashed: " + str(i) + " website: " + df["website"][i])
+        try:
+            driver.quit()
+        except:
+            pass
+        print(r"Crashed: " + str(i) + " website: " + df["website"][i])

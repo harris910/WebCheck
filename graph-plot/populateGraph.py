@@ -5,6 +5,7 @@ from storageNodeHandler import addStorage, getStorageDic
 from inforShareHandler import getReqCookie, IsInfoShared
 from redirectionEdgeHandler import getRedirection
 from networkNodeHandler import getInitiator, getInitiatorURL
+from eventHandler import addEventInGraph
 from graphviz import Digraph
 
 # node labels
@@ -38,7 +39,7 @@ def createWebGraph(url):
     nodes = {}
     # src@tar = [src_id, tar_id, type]
     edges = {}
-    # script_dic = {'https://ad/test.js': [set->[_gid,..], get->[_svd, ..]]}
+    # script_dic = {'https://ad/test.js@method': [set->[_gid,..], get->[_svd, ..]]}
     script_dic = {}
     # storage_dic = {'_gid' = [002, 5288992, 1], '_svd' = [5]}
     storage_dic = {}
@@ -73,7 +74,7 @@ def createWebGraph(url):
             for item in script_dic[key][1]:
                 addEdge(edges, nodes["Storage@" + item][0], src2, "Storage Getter")
 
-    # cookie set by inline JavaScript
+    # cookie set/get by inline JavaScript
     if "https://www." + url + "/" in script_dic.keys():
         for cookie_set in script_dic["https://www." + url + "/"][0]:
             addEdge(
@@ -82,13 +83,45 @@ def createWebGraph(url):
                 nodes["Storage@" + cookie_set][0],
                 "Storage Setter",
             )
-        for cookie_Get in script_dic["https://www." + url + "/"][1]:
+        for cookie_get in script_dic["https://www." + url + "/"][1]:
             addEdge(
                 edges,
-                nodes["Storage@" + cookie_set][0],
+                nodes["Storage@" + cookie_get][0],
                 nodes["HTML@" + "https://www." + url + "/"][0],
-                "Storage Setter",
+                "Storage Getter",
             )
+
+    # handle setting events in the graph
+    # event_dic = {script@method -> [[object HTMLScriptElement], ...]}
+    event_dic = addEventInGraph(folder, "eventset.json")
+    for key in event_dic:
+        if key is not None:
+            src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            # adding script and method relationship
+            addEdge(edges, src, src2, "partof")
+
+            for element in event_dic[key]:
+                # adding html element node
+                tar = addNode(nodes, "HTML@" + element, "HTML/object", 0, 0, -2)
+                # adding method and event edge
+                addEdge(edges, src2, tar, "event set")
+
+    # handle getting events in the graph
+    # event_dic = {script@method -> [[object HTMLScriptElement], ...]}
+    event_dic = addEventInGraph(folder, "eventget.json")
+    for key in event_dic:
+        if key is not None:
+            src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            # adding script and method relationship
+            addEdge(edges, src, src2, "partof")
+
+            for element in event_dic[key]:
+                # adding html element node
+                tar = addNode(nodes, "HTML@" + element, "HTML/object", 0, 0, -2)
+                # adding method and event edge
+                addEdge(edges, tar, src2, "event get")
 
     # reading big request data line by line
     with open(folder + "label_request.json") as file:
