@@ -235,8 +235,8 @@ def createWebGraph(url):
                             nodes,
                             "Script@" + getInitiatorURL(dataset["call_stack"]["stack"]),
                             "Script",
-                            1,
                             0,
+                            1,
                             0,
                         )
                     addEdge(edges, tar, src, "Initiated")

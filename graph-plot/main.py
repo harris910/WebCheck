@@ -3,7 +3,7 @@ import networkx as nx
 
 
 def main():
-    createWebGraph("nbcnews.com")
+    createWebGraph("dailymail.co.uk")
     # createGraphFeatures("forbes.com")
 
 

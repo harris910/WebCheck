@@ -17,66 +17,83 @@ def addStorage(script_dic, storage_dic, dataset):
     """
   {"top_level_url":"https://www.forbes.com/","function":"storage_getter","storage":{"keyName":"mnsbucketExpiryTime"},"stack":"Error\n    at window.Storage.getItem (chrome-extension://dpclmdhkoabgdfgpfnijjobmogkfbkpo/inject.js:31:13)\n    at t.value (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:112381)\n    at https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:581866\n    at t.value (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:582010)\n    at t.value (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:113067)\n    at new t (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:112745)\n    at Object.<anonymous> (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:112666)\n    at n (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:110)\n    at Object.<anonymous> (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:15395)\n    at n (https://contextual.media.net/bidexchange.js?cid=8CUX956JU:2:110)"}
   """
+    try:
+        if dataset["function"] == "cookie_setter":
+            if dataset["cookie"] != "":
 
-    if dataset["function"] == "cookie_setter":
-        if dataset["cookie"] != "":
-
-            if dataset["cookie"].split("=")[0].strip() not in storage_dic.keys():
-                storage_dic[dataset["cookie"].split("=")[0].strip()] = ["cookie_setter"]
-            if (
-                dataset["cookie"].split(";")[0].split("=")[1]
-                not in storage_dic[dataset["cookie"].split("=")[0].strip()]
-            ):
-                storage_dic[dataset["cookie"].split("=")[0].strip()].append(
+                if dataset["cookie"].split("=")[0].strip() not in storage_dic.keys():
+                    storage_dic[dataset["cookie"].split("=")[0].strip()] = [
+                        "cookie_setter"
+                    ]
+                if (
                     dataset["cookie"].split(";")[0].split("=")[1]
-                )
+                    not in storage_dic[dataset["cookie"].split("=")[0].strip()]
+                ):
+                    storage_dic[dataset["cookie"].split("=")[0].strip()].append(
+                        dataset["cookie"].split(";")[0].split("=")[1]
+                    )
 
-            script_url = getStorageScriptFromStack(dataset["stack"])
-            if script_url not in script_dic.keys():
-                script_dic[script_url] = [[], []]
-            if dataset["cookie"].split("=")[0].strip() not in script_dic[script_url][0]:
-                script_dic[script_url][0].append(
+                script_url = getStorageScriptFromStack(dataset["stack"])
+                if script_url not in script_dic.keys():
+                    script_dic[script_url] = [[], []]
+                if (
                     dataset["cookie"].split("=")[0].strip()
-                )
+                    not in script_dic[script_url][0]
+                ):
+                    script_dic[script_url][0].append(
+                        dataset["cookie"].split("=")[0].strip()
+                    )
 
-    elif dataset["function"] == "cookie_getter":
-        if dataset["cookie"] != "":
+        elif dataset["function"] == "cookie_getter":
+            if dataset["cookie"] != "":
 
-            script_url = getStorageScriptFromStack(dataset["stack"])
-            lst = dataset["cookie"].split(";")
-            for item in lst:
-                if item.split("=")[0].strip() not in storage_dic.keys():
-                    storage_dic[item.split("=")[0].strip()] = ["cookie_getter"]
-                if item.split("=")[1] not in storage_dic[item.split("=")[0].strip()]:
-                    storage_dic[item.split("=")[0].strip()].append(item.split("=")[1])
+                script_url = getStorageScriptFromStack(dataset["stack"])
+                lst = dataset["cookie"].split(";")
+                for item in lst:
+                    if item.split("=")[0].strip() not in storage_dic.keys():
+                        storage_dic[item.split("=")[0].strip()] = ["cookie_getter"]
+                    if (
+                        item.split("=")[1]
+                        not in storage_dic[item.split("=")[0].strip()]
+                    ):
+                        storage_dic[item.split("=")[0].strip()].append(
+                            item.split("=")[1]
+                        )
+
+                    if script_url not in script_dic.keys():
+                        script_dic[script_url] = [[], []]
+                    if item.split("=")[0].strip() not in script_dic[script_url][1]:
+                        script_dic[script_url][1].append(item.split("=")[0].strip())
+
+        else:
+            if dataset["storage"] != "":
+                script_url = getStorageScriptFromStack(dataset["stack"])
+                storage_obj = json.dumps(dataset["storage"])
+                storage_obj = json.loads(storage_obj)
 
                 if script_url not in script_dic.keys():
                     script_dic[script_url] = [[], []]
-                if item.split("=")[0].strip() not in script_dic[script_url][1]:
-                    script_dic[script_url][1].append(item.split("=")[0].strip())
 
-    else:
-        if dataset["storage"] != "":
-            script_url = getStorageScriptFromStack(dataset["stack"])
-            storage_obj = json.dumps(dataset["storage"])
-            storage_obj = json.loads(storage_obj)
+                if dataset["function"] == "storage_setter":
+                    if storage_obj["keyName"] not in storage_dic.keys():
+                        storage_dic[storage_obj["keyName"]] = ["storage_setter"]
+                    if storage_obj["keyName"] not in script_dic[script_url][0]:
+                        script_dic[script_url][0].append(storage_obj["keyName"])
+                    if (
+                        storage_obj["keyValue"]
+                        not in storage_dic[storage_obj["keyName"]]
+                    ):
+                        storage_dic[storage_obj["keyName"]].append(
+                            storage_obj["keyValue"]
+                        )
 
-            if script_url not in script_dic.keys():
-                script_dic[script_url] = [[], []]
-
-            if dataset["function"] == "storage_setter":
-                if storage_obj["keyName"] not in storage_dic.keys():
-                    storage_dic[storage_obj["keyName"]] = ["storage_setter"]
-                if storage_obj["keyName"] not in script_dic[script_url][0]:
-                    script_dic[script_url][0].append(storage_obj["keyName"])
-                if storage_obj["keyValue"] not in storage_dic[storage_obj["keyName"]]:
-                    storage_dic[storage_obj["keyName"]].append(storage_obj["keyValue"])
-
-            if dataset["function"] == "storage_getter":
-                if storage_obj["keyName"] not in storage_dic.keys():
-                    storage_dic[storage_obj["keyName"]] = ["storage_getter"]
-                if storage_obj["keyName"] not in script_dic[script_url][1]:
-                    script_dic[script_url][1].append(storage_obj["keyName"])
+                if dataset["function"] == "storage_getter":
+                    if storage_obj["keyName"] not in storage_dic.keys():
+                        storage_dic[storage_obj["keyName"]] = ["storage_getter"]
+                    if storage_obj["keyName"] not in script_dic[script_url][1]:
+                        script_dic[script_url][1].append(storage_obj["keyName"])
+    except:
+        print("hey\n")
 
 
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)

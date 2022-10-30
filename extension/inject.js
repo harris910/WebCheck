@@ -70,6 +70,7 @@ Object.defineProperty(document, 'cookie', {
         }).then(res => {
             console.log("CookieStorage collected");
         });
+        return cookieGetter();
     },
 
     set: function(cookieString) {
@@ -89,13 +90,14 @@ Object.defineProperty(document, 'cookie', {
         }).then(res => {
             console.log("CookieStorage collected");
         });
+        return cookieSetter(cookieString);
     }
 });
 
 var addEventList = EventTarget.prototype.addEventListener;
 EventTarget.prototype.addEventListener = function(type, fn, capture) {
-    this.addEventList = addEventList;
-    this.addEventList(type, fn, capture);
+    // this.addEventList = addEventList;
+    // this.addEventList(type, fn, capture);
     fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
@@ -115,12 +117,37 @@ EventTarget.prototype.addEventListener = function(type, fn, capture) {
     }).then(res => {
         console.log("addEventListener collected");
     });
+    addEventList.apply(this, arguments)
+    return
+}
+
+var sendBeac = Navigator.prototype.sendBeacon;
+Navigator.prototype.sendBeacon = function(url, data) {
+    fetch("http://localhost:3000/eventset", {
+        method: "POST",
+        body: JSON.stringify({
+            "top_level_url": window.location.href,
+            "event": 'sendBeacon',
+            "url": url,
+            "this": String(this),
+            "stack": new Error().stack
+        }),
+        mode: 'cors',
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            "Content-Type": "application/json"
+        }
+    }).then(res => {
+        console.log("sendBeacon collected");
+    });
+    sendBeac.apply(this, arguments)
+    return
 }
 
 var removeEventList = EventTarget.prototype.removeEventListener;
 EventTarget.prototype.removeEventListener = function(type, fn, capture) {
-    this.removeEventList = removeEventList;
-    this.removeEventList(type, fn, capture);
+    // this.removeEventList = removeEventList;
+    // this.removeEventList(type, fn, capture);
     fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
@@ -140,12 +167,14 @@ EventTarget.prototype.removeEventListener = function(type, fn, capture) {
     }).then(res => {
         console.log("removeEventListener collected");
     });
+    removeEventList.apply(this, arguments)
+    return
 }
 
 var setAttrib = Element.prototype.setAttribute;
 Element.prototype.setAttribute = function(name, value) {
-    this.setAttrib = setAttrib;
-    this.setAttrib(name, value);
+    // this.setAttrib = setAttrib;
+    // this.setAttrib(name, value);
     fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
@@ -164,12 +193,14 @@ Element.prototype.setAttribute = function(name, value) {
     }).then(res => {
         console.log("setAttribute collected");
     });
+    setAttrib.apply(this, arguments)
+    return
 }
 
 var getAttrib = Element.prototype.getAttribute;
 Element.prototype.getAttribute = function(name) {
-    this.getAttrib = getAttrib;
-    this.getAttrib(name);
+    // this.getAttrib = getAttrib;
+    // this.getAttrib(name);
     fetch("http://localhost:3000/eventget", {
         method: "POST",
         body: JSON.stringify({
@@ -187,12 +218,14 @@ Element.prototype.getAttribute = function(name) {
     }).then(res => {
         console.log("getAttribute collected");
     });
+    getAttrib.apply(this, arguments)
+    return
 }
 
 var removeAttrib = Element.prototype.removeAttribute;
 Element.prototype.removeAttribute = function(name) {
-    this.removeAttrib = removeAttrib;
-    this.removeAttrib(name);
+    // this.removeAttrib = removeAttrib;
+    // this.removeAttrib(name);
     fetch("http://localhost:3000/eventset", {
         method: "POST",
         body: JSON.stringify({
@@ -210,4 +243,6 @@ Element.prototype.removeAttribute = function(name) {
     }).then(res => {
         console.log("removeAttribute collected");
     });
+    removeAttrib.apply(this, arguments)
+    return
 }

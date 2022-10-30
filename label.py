@@ -65,7 +65,7 @@ def CheckTrackingReq(rules, url, top_level_url, resource_type):
         rules.should_block(
             url,
             {
-                resource_type: resource_type,
+                "resource_type": resource_type,
                 "domain": getDomain(url),
                 "third-party": isThirdPartyReq(url, top_level_url),
             },
@@ -198,7 +198,7 @@ def main():
         "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output"
     )
     for f in fold:
-        if ".com" in f:
+        if ".co" in f:
             print(f)
             intilization(
                 "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"

@@ -164,7 +164,6 @@ function onEvent(debuggeeId, message, params) {
             .then((json) => {
                 for (let i = 0; i < json.length; i++) {
                     if (json[i].url == params.url) {
-                        console.log("hadi");
                         chrome.debugger.sendCommand({
                             tabId: debuggeeId.tabId
                         }, 'Debugger.setBreakpointByUrl', json[i], (resp) => {
