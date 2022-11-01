@@ -336,5 +336,5 @@ def createWebGraph(url):
         else:
             plot.edge(str(edges[key][0]), str(edges[key][1]), arrowhead="normal")
 
-    plot.render(folder + "graph.gv.json", view=True)
+    # plot.render(folder + "graph.gv.json", view=True)
     plot.render(folder + "graph")

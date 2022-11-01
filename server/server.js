@@ -80,6 +80,15 @@ async function insertEventGet(newInfo, website) {
     })
 }
 
+async function insertScriptIds(newInfo, website) {
+    const file = 'output/' + website + '/script_ids.json';
+    jsonfile.writeFile(file, newInfo, {
+        flag: 'a'
+    }, function(err) {
+        if (err) console.error(err);
+    })
+}
+
 
 app.post('/request', (req, res) => {
     if (req.body.http_req != `http://localhost:${port}/cookiestorage`) {
@@ -117,6 +126,11 @@ app.post('/eventset', (req, res) => {
 app.post('/eventget', (req, res) => {
     insertEventGet(req.body, website[0]);
     res.send("eventget-success");
+})
+
+app.post('/scriptid', (req, res) => {
+    insertScriptIds(req.body, website[0]);
+    res.send("scriptids-success");
 })
 
 app.post('/complete', (req, res) => {

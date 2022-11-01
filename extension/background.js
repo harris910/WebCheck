@@ -158,6 +158,21 @@ function onEvent(debuggeeId, message, params) {
     }
 
     if (message == "Debugger.scriptParsed") {
+        fetch(`http://localhost:${port}/scriptid`, {
+            method: "POST",
+            body: JSON.stringify({
+                "scriptId": params.scriptId,
+                "url": params.url
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("scriptids complete! response");
+        });
+
         const url = chrome.extension.getURL('breakpoint.json');
         fetch(url)
             .then((response) => response.json())
@@ -168,6 +183,7 @@ function onEvent(debuggeeId, message, params) {
                             tabId: debuggeeId.tabId
                         }, 'Debugger.setBreakpointByUrl', json[i], (resp) => {
                             if (chrome.runtime.lastError) {
+                                console.log(json[i])
                                 console.log(chrome.runtime.lastError.message);
                             }
                         })

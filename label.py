@@ -198,8 +198,8 @@ def main():
         "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output"
     )
     for f in fold:
-        if ".co" in f:
-            print(f)
+        try:
+            print("labeled: ", f)
             intilization(
                 "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
                 + f
@@ -208,6 +208,8 @@ def main():
                 + f
                 + "/",
             )
+        except:
+            print("not-labeled: ", f)
 
 
 main()
