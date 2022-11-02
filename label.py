@@ -194,19 +194,13 @@ def intilization(JSONfile_path, folder):
 
 
 def main():
-    fold = os.listdir(
-        "server/output"
-    )
+    fold = os.listdir("server/output")
     for f in fold:
         try:
             print("labeled: ", f)
             intilization(
-                "server/output/"
-                + f
-                + "/request.json",
-                "server/output/"
-                + f
-                + "/",
+                "server/output/" + f + "/request.json",
+                "server/output/" + f + "/",
             )
         except:
             print("not-labeled: ", f)

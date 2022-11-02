@@ -140,83 +140,85 @@ def addBreakPoints(filename):
 
 # selenium to visit website and get logs
 def visitWebsite(df):
-    #try:
-        dic = {}
-        # extension filepath
-        ext_file = "extension"
+    # try:
+    dic = {}
+    # extension filepath
+    ext_file = "extension"
 
-        opt = webdriver.ChromeOptions()
-        # devtools necessary for complete network stack capture
-        opt.add_argument("--auto-open-devtools-for-tabs")
-        # loads extension
-        opt.add_argument("load-extension=" + ext_file)
-        # important for linux
-        opt.add_argument("--no-sandbox")
+    opt = webdriver.ChromeOptions()
+    # devtools necessary for complete network stack capture
+    opt.add_argument("--auto-open-devtools-for-tabs")
+    # loads extension
+    opt.add_argument("load-extension=" + ext_file)
+    # important for linux
+    opt.add_argument("--no-sandbox")
 
-        dc = DesiredCapabilities.CHROME
-        dc["goog:loggingPrefs"] = {"browser": "ALL"}
+    dc = DesiredCapabilities.CHROME
+    dc["goog:loggingPrefs"] = {"browser": "ALL"}
 
-        os.mkdir("server/output/" + df["website"][i])
-        driver = webdriver.Chrome(
-            ChromeDriverManager().install(), options=opt, desired_capabilities=dc
-        )
-        requests.post(
-            url="http://localhost:3000/complete", data={"website": df["website"][i]}
-        )
-        driver.get(r"https://" + df["website"][i])
+    os.mkdir("server/output/" + df["website"][i])
+    driver = webdriver.Chrome(
+        ChromeDriverManager().install(), options=opt, desired_capabilities=dc
+    )
+    requests.post(
+        url="http://localhost:3000/complete", data={"website": df["website"][i]}
+    )
+    driver.get(r"https://" + df["website"][i])
 
-        # sleep
-        time.sleep(40)
+    # sleep
+    time.sleep(40)
 
-        # dictionary collecting logs
-        # 1: Logs 2: PageSource
-        # dic[df["website"][i]] = []
-        # # saving logs in dictionary
-        # dic[df["website"][i]].append(driver.get_log("browser"))
-        # dic[df["website"][i]].append(driver.page_source)
-        # # saving it in csv
-        # pd.DataFrame(dic).to_csv("server/output/" + df["website"][i] + "/logs.csv")
-        # driver.quit
-        driver.quit()
-    # except:
-    #     try:
-    #         driver.quit()
-    #     except:
-    #         pass
+    # dictionary collecting logs
+    # 1: Logs 2: PageSource
+    # dic[df["website"][i]] = []
+    # # saving logs in dictionary
+    # dic[df["website"][i]].append(driver.get_log("browser"))
+    # dic[df["website"][i]].append(driver.page_source)
+    # # saving it in csv
+    # pd.DataFrame(dic).to_csv("server/output/" + df["website"][i] + "/logs.csv")
+    # driver.quit
+    driver.quit()
+
+
+# except:
+#     try:
+#         driver.quit()
+#     except:
+#         pass
 
 
 count = 0
 
 for i in df.index:
     # try:
-        # if i < 273:
-        #     pass
-        # else:
-
-        # clear breakpoints
-        f = open(
-            "extension/breakpoint.json",
-            "w",
-        )
-        f.write("[]")
-        f.close()
-
-        # visit website
-        visitWebsite(df)
-
-        # update breakpoints list
-        addBreakPoints("server/output/" + df["website"][i])
-        # delete previous crawl
-        shutil.rmtree("server/output/" + df["website"][i])
-
-        # visit website
-        visitWebsite(df)
-
-        count += 1
-        with open("logs.txt", "w") as log:
-            log.write(str(count))
-            log.close()
-        print(r"Completed: " + str(i) + " website: " + df["website"][i])
-    # except:
+    # if i < 273:
     #     pass
-    #     print(r"Crashed: " + str(i) + " website: " + df["website"][i])
+    # else:
+
+    # clear breakpoints
+    f = open(
+        "extension/breakpoint.json",
+        "w",
+    )
+    f.write("[]")
+    f.close()
+
+    # visit website
+    visitWebsite(df)
+
+    # update breakpoints list
+    addBreakPoints("server/output/" + df["website"][i])
+    # delete previous crawl
+    shutil.rmtree("server/output/" + df["website"][i])
+
+    # visit website
+    visitWebsite(df)
+
+    count += 1
+    with open("logs.txt", "w") as log:
+        log.write(str(count))
+        log.close()
+    print(r"Completed: " + str(i) + " website: " + df["website"][i])
+# except:
+#     pass
+#     print(r"Crashed: " + str(i) + " website: " + df["website"][i])

@@ -6,9 +6,7 @@ import os
 def main():
     # createWebGraph("nbcnews.com")
     # createGraphFeatures("forbes.com")
-    fold = os.listdir(
-        "server/output"
-    )
+    fold = os.listdir("server/output")
     for f in fold:
         try:
             print("graph-plot: ", f)
