@@ -195,16 +195,16 @@ def intilization(JSONfile_path, folder):
 
 def main():
     fold = os.listdir(
-        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output"
+        "server/output"
     )
     for f in fold:
         try:
             print("labeled: ", f)
             intilization(
-                "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
+                "server/output/"
                 + f
                 + "/request.json",
-                "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
+                "server/output/"
                 + f
                 + "/",
             )

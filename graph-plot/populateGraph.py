@@ -30,7 +30,7 @@ def addEdge(edges, src, tar, type):
 def createWebGraph(url):
 
     folder = (
-        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
+        "/home/student/TrackerSift/MethGraph/webpage-crawler-extension/server/output/"
         + url
         + "/"
     )

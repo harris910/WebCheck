@@ -5,34 +5,37 @@ import time
 import json
 import shutil
 
-# from pyvirtualdisplay import Display
+from pyvirtualdisplay import Display
 import pandas as pd
 import requests
 import os
 
 
 # virtual display
-# display = Display(visible=0, size=(800, 600))
-# display.start()
+display = Display(visible=0, size=(800, 600))
+display.start()
 
 # df = pd.read_csv(r'3.csv')
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([["bloomberg.com"]], columns=["website"])
+df = pd.DataFrame([["ebay.com"]], columns=["website"])
 
 # helper functions for breakpoints
 def getInitiator(stack):
-    if len(stack["callFrames"]) != 0:
-        if (
-            "chrome-extension" not in stack["callFrames"][0]["url"]
-            and stack["callFrames"][0]["url"] != ""
-        ):
-            return {
-                "lineNumber": int(stack["callFrames"][0]["lineNumber"]),
-                "url": stack["callFrames"][0]["url"],
-                "columnNumber": int(stack["callFrames"][0]["columnNumber"]),
-            }
-    else:
-        return getInitiator(stack["parent"])
+    try:
+        if len(stack["callFrames"]) != 0:
+            if (
+                "chrome-extension" not in stack["callFrames"][0]["url"]
+                and stack["callFrames"][0]["url"] != ""
+            ):
+                return {
+                    "lineNumber": int(stack["callFrames"][0]["lineNumber"]),
+                    "url": stack["callFrames"][0]["url"],
+                    "columnNumber": int(stack["callFrames"][0]["columnNumber"]),
+                }
+        else:
+            return getInitiator(stack["parent"])
+    except:
+        pass
 
 
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
@@ -67,52 +70,52 @@ def addBreakPoints(filename):
 
     storage_setItem = {
         "lineNumber": 5,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     storage_getItem = {
         "lineNumber": 30,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     cookie_setItem = {
         "lineNumber": 76,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     cookie_getItem = {
         "lineNumber": 55,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     addEventList = {
         "lineNumber": 98,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     sendBeac = {
         "lineNumber": 125,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     removeEventList = {
         "lineNumber": 148,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     setAttrib = {
         "lineNumber": 175,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     getAttrib = {
         "lineNumber": 201,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
     removeAttrib = {
         "lineNumber": 226,
-        "url": "chrome-extension://hnbgnenhonemdoeoegmpnbnioccmmajf/inject.js",
+        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
         "columnNumber": 4,
     }
 
@@ -123,13 +126,12 @@ def addBreakPoints(filename):
     arr.append(addEventList)
     arr.append(sendBeac)
     arr.append(removeEventList)
-    arr.append(removeEventList)
     arr.append(setAttrib)
     arr.append(getAttrib)
     arr.append(removeAttrib)
 
     f = open(
-        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/extension/breakpoint.json",
+        "extension/breakpoint.json",
         "w",
     )
     f.write(str(arr).replace("'", '"'))
@@ -138,10 +140,10 @@ def addBreakPoints(filename):
 
 # selenium to visit website and get logs
 def visitWebsite(df):
-    try:
+    #try:
         dic = {}
         # extension filepath
-        ext_file = "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/extension"
+        ext_file = "extension"
 
         opt = webdriver.ChromeOptions()
         # devtools necessary for complete network stack capture
@@ -164,36 +166,36 @@ def visitWebsite(df):
         driver.get(r"https://" + df["website"][i])
 
         # sleep
-        time.sleep(20)
+        time.sleep(40)
 
         # dictionary collecting logs
         # 1: Logs 2: PageSource
-        dic[df["website"][i]] = []
-        # saving logs in dictionary
-        dic[df["website"][i]].append(driver.get_log("browser"))
-        dic[df["website"][i]].append(driver.page_source)
-        # saving it in csv
-        pd.DataFrame(dic).to_csv("server/output/" + df["website"][i] + "/logs.csv")
+        # dic[df["website"][i]] = []
+        # # saving logs in dictionary
+        # dic[df["website"][i]].append(driver.get_log("browser"))
+        # dic[df["website"][i]].append(driver.page_source)
+        # # saving it in csv
+        # pd.DataFrame(dic).to_csv("server/output/" + df["website"][i] + "/logs.csv")
         # driver.quit
         driver.quit()
-    except:
-        try:
-            driver.quit()
-        except:
-            pass
+    # except:
+    #     try:
+    #         driver.quit()
+    #     except:
+    #         pass
 
 
 count = 0
 
 for i in df.index:
-    try:
+    # try:
         # if i < 273:
         #     pass
         # else:
 
         # clear breakpoints
         f = open(
-            "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/extension/breakpoint.json",
+            "extension/breakpoint.json",
             "w",
         )
         f.write("[]")
@@ -215,6 +217,6 @@ for i in df.index:
             log.write(str(count))
             log.close()
         print(r"Completed: " + str(i) + " website: " + df["website"][i])
-    except:
-        pass
-        print(r"Crashed: " + str(i) + " website: " + df["website"][i])
+    # except:
+    #     pass
+    #     print(r"Crashed: " + str(i) + " website: " + df["website"][i])

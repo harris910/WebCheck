@@ -3,51 +3,62 @@ var cookieSetter = document.__lookupSetter__("cookie").bind(document);
 
 let originalFunction = window.Storage.prototype.setItem;
 window.Storage.prototype.setItem = function(keyName, keyValue) {
-    fetch("http://localhost:3000/cookiestorage", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "function": "storage_setter",
-            "storage": {
-                "keyName": keyName,
-                "keyValue": keyValue
-            },
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("Localstorage collected");
-    });
-    originalFunction.apply(this, arguments);
-    return;
+    try{
+        originalFunction.apply(this, arguments);
+        fetch("http://localhost:3000/cookiestorage", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "function": "storage_setter",
+                "storage": {
+                    "keyName": keyName,
+                    "keyValue": keyValue
+                },
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("Localstorage collected");
+        });
+        return;
+    }
+    catch(err){
+        originalFunction.apply(this, arguments);
+    }
 }
 
 let originalFunction2 = window.Storage.prototype.getItem;
 window.Storage.prototype.getItem = function(keyName) {
-    fetch("http://localhost:3000/cookiestorage", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "function": "storage_getter",
-            "storage": {
-                keyName
-            },
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("Localstorage collected");
-    });
-    originalFunction2.apply(this, arguments);
-    return;
+    try{
+        originalFunction2.apply(this, arguments);
+        fetch("http://localhost:3000/cookiestorage", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "function": "storage_getter",
+                "storage": {
+                    keyName
+                },
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("Localstorage collected");
+        });
+        
+        return;
+    }
+    catch(err){
+        originalFunction2.apply(this, arguments);
+    }
 }
 
 
@@ -98,151 +109,183 @@ var addEventList = EventTarget.prototype.addEventListener;
 EventTarget.prototype.addEventListener = function(type, fn, capture) {
     // this.addEventList = addEventList;
     // this.addEventList(type, fn, capture);
-    fetch("http://localhost:3000/eventset", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "event": 'addEventListener',
-            "type": type,
-            "function": fn,
-            "capture": capture,
-            "this": String(this),
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("addEventListener collected");
-    });
-    addEventList.apply(this, arguments)
-    return
+    try{
+        addEventList.apply(this, arguments)
+        fetch("http://localhost:3000/eventset", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "event": 'addEventListener',
+                "type": type,
+                "function": fn,
+                "capture": capture,
+                "this": String(this),
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("addEventListener collected");
+        });
+        
+        return
+    }
+    catch(err){
+        addEventList.apply(this, arguments)
+    }
 }
 
 var sendBeac = Navigator.prototype.sendBeacon;
 Navigator.prototype.sendBeacon = function(url, data) {
-    fetch("http://localhost:3000/eventset", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "event": 'sendBeacon',
-            "url": url,
-            "this": String(this),
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("sendBeacon collected");
-    });
-    sendBeac.apply(this, arguments)
-    return
+    try{
+        sendBeac.apply(this, arguments)
+        fetch("http://localhost:3000/eventset", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "event": 'sendBeacon',
+                "url": url,
+                "this": String(this),
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("sendBeacon collected");
+        });
+        
+        return
+    }
+    catch(err){
+        sendBeac.apply(this, arguments)  
+    }
 }
 
 var removeEventList = EventTarget.prototype.removeEventListener;
 EventTarget.prototype.removeEventListener = function(type, fn, capture) {
     // this.removeEventList = removeEventList;
     // this.removeEventList(type, fn, capture);
-    fetch("http://localhost:3000/eventset", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "event": 'removeEventListener',
-            "type": type,
-            "function": fn,
-            "capture": capture,
-            "this": String(this),
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("removeEventListener collected");
-    });
-    removeEventList.apply(this, arguments)
-    return
+    try{
+        removeEventList.apply(this, arguments)
+        fetch("http://localhost:3000/eventset", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "event": 'removeEventListener',
+                "type": type,
+                "function": fn,
+                "capture": capture,
+                "this": String(this),
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("removeEventListener collected");
+        }); 
+        return
+    }
+    catch(err){
+        removeEventList.apply(this, arguments)
+    }
 }
 
 var setAttrib = Element.prototype.setAttribute;
 Element.prototype.setAttribute = function(name, value) {
     // this.setAttrib = setAttrib;
     // this.setAttrib(name, value);
-    fetch("http://localhost:3000/eventset", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "event": "setAttribute",
-            "name": name,
-            "value": value,
-            "this": String(this),
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("setAttribute collected");
-    });
-    setAttrib.apply(this, arguments)
-    return
+    try{
+        setAttrib.apply(this, arguments)
+        fetch("http://localhost:3000/eventset", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "event": "setAttribute",
+                "name": name,
+                "value": value,
+                "this": String(this),
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("setAttribute collected");
+        });
+        return
+    }
+    catch(err){
+        setAttrib.apply(this, arguments)
+    }
 }
 
 var getAttrib = Element.prototype.getAttribute;
 Element.prototype.getAttribute = function(name) {
     // this.getAttrib = getAttrib;
     // this.getAttrib(name);
-    fetch("http://localhost:3000/eventget", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "event": "getAttribute",
-            "name": name,
-            "this": String(this),
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("getAttribute collected");
-    });
-    getAttrib.apply(this, arguments)
-    return
+    try{
+        getAttrib.apply(this, arguments)
+        fetch("http://localhost:3000/eventget", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "event": "getAttribute",
+                "name": name,
+                "this": String(this),
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("getAttribute collected");
+        });
+        return
+    }
+    catch(err){
+        getAttrib.apply(this, arguments) 
+    }
 }
 
 var removeAttrib = Element.prototype.removeAttribute;
 Element.prototype.removeAttribute = function(name) {
     // this.removeAttrib = removeAttrib;
     // this.removeAttrib(name);
-    fetch("http://localhost:3000/eventset", {
-        method: "POST",
-        body: JSON.stringify({
-            "top_level_url": window.location.href,
-            "event": "removeAttribute",
-            "name": name,
-            "this": String(this),
-            "stack": new Error().stack
-        }),
-        mode: 'cors',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            "Content-Type": "application/json"
-        }
-    }).then(res => {
-        console.log("removeAttribute collected");
-    });
-    removeAttrib.apply(this, arguments)
-    return
+    try{
+        removeAttrib.apply(this, arguments)
+        fetch("http://localhost:3000/eventset", {
+            method: "POST",
+            body: JSON.stringify({
+                "top_level_url": window.location.href,
+                "event": "removeAttribute",
+                "name": name,
+                "this": String(this),
+                "stack": new Error().stack
+            }),
+            mode: 'cors',
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                "Content-Type": "application/json"
+            }
+        }).then(res => {
+            console.log("removeAttribute collected");
+        }); 
+        return
+    }
+    catch(err){
+        removeAttrib.apply(this, arguments) 
+    }
 }

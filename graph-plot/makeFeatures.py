@@ -72,10 +72,10 @@ def fileToCount(file, types, category):
 
 def main():
     fold = os.listdir(
-        "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output"
+        "server/output"
     )
     for site in fold:
-        try:
+        # try:
             # methods = {id: ['script_name-0', 'method_name-1', 'label-2', 'num_requests_sent-3', 'num_node-4', 'num_edges-5', 'nodes_div_by_edges-6', 'edges_div_by_nodes-7', 'in_degree-8', 'out_degree-9', 'in_out_degree-10', 'ancestor-11', 'descendants-12',
             # 'closeness_centrality-13', 'in_degree_centrality-14', 'out_degree_centrality-15', 'is_anonymous-16', 'is_eval_or_external_function-17', 'descendant_of_eval_or_function-18', 'ascendant_script_has_eval_or_function-19','num_script_successors-20',
             # 'num_script_predecessors-21', 'storage_getter-22', 'storage_setter-23', 'cookie_getter-24', 'cookie_setter-25', "getAttribute-26", "setAttribute-27", "addEventListener-28",
@@ -85,7 +85,7 @@ def main():
             print("features: ", site)
 
             folder = (
-                "C:/Users/Hadiy/OneDrive/Desktop/webpage-crawler-extension/server/output/"
+                "server/output/"
                 + site
                 + "/"
             )
@@ -288,68 +288,71 @@ def main():
             with open(folder + "debug.json") as file:
                 for line in file:
                     dataset = json.loads(line)
-                    if (
-                        "chrome-extension"
-                        not in dataset["hitBreakpoints"][0].split(":")[3]
-                    ):
+                    try:
                         if (
-                            dataset["hitBreakpoints"][0].split(":")[3]
-                            + "@"
-                            + dataset["heap"][0]["functionName"]
-                            not in debug.keys()
+                            "chrome-extension"
+                            not in dataset["hitBreakpoints"][0].split(":")[3]
                         ):
+                            if (
+                                dataset["hitBreakpoints"][0].split(":")[3]
+                                + "@"
+                                + dataset["heap"][0]["functionName"]
+                                not in debug.keys()
+                            ):
+                                debug[
+                                    dataset["hitBreakpoints"][0].split(":", 3)[3]
+                                    + "@"
+                                    + dataset["heap"][0]["functionName"]
+                                ] = []
+                            local = 0
+                            closure = 0
+                            global_i = 0
+                            script = 0
+                            types = []
+                            for item in dataset["heap"][0]["scopeChain"]:
+                                if item["type"] not in types:
+                                    types.append(item["type"])
+                                if item["type"] == "local":
+                                    local += 1
+                                elif item["type"] == "closure":
+                                    closure += 1
+                                elif item["type"] == "global":
+                                    global_i += 1
+                                elif item["type"] == "script":
+                                    script += 1
                             debug[
                                 dataset["hitBreakpoints"][0].split(":", 3)[3]
                                 + "@"
                                 + dataset["heap"][0]["functionName"]
-                            ] = []
-                        local = 0
-                        closure = 0
-                        global_i = 0
-                        script = 0
-                        types = []
-                        for item in dataset["heap"][0]["scopeChain"]:
-                            if item["type"] not in types:
-                                types.append(item["type"])
-                            if item["type"] == "local":
-                                local += 1
-                            elif item["type"] == "closure":
-                                closure += 1
-                            elif item["type"] == "global":
-                                global_i += 1
-                            elif item["type"] == "script":
-                                script += 1
-                        debug[
-                            dataset["hitBreakpoints"][0].split(":", 3)[3]
-                            + "@"
-                            + dataset["heap"][0]["functionName"]
-                        ].append([local, closure, global_i, script])
-                    else:
-                        script_name = script_ids[
-                            dataset["heap"][1]["functionLocation"]["scriptId"]
-                        ]
-                        method_name = dataset["heap"][1]["functionName"]
-                        if script_name + "@" + method_name not in debug.keys():
-                            debug[script_name + "@" + method_name] = []
-                        local = 0
-                        closure = 0
-                        global_i = 0
-                        script = 0
-                        types = []
-                        for item in dataset["heap"][1]["scopeChain"]:
-                            if item["type"] not in types:
-                                types.append(item["type"])
-                            if item["type"] == "local":
-                                local += 1
-                            elif item["type"] == "closure":
-                                closure += 1
-                            elif item["type"] == "global":
-                                global_i += 1
-                            elif item["type"] == "script":
-                                script += 1
-                        debug[script_name + "@" + method_name].append(
-                            [local, closure, global_i, script]
-                        )
+                            ].append([local, closure, global_i, script])
+                        else:
+                            script_name = script_ids[
+                                dataset["heap"][1]["functionLocation"]["scriptId"]
+                            ]
+                            method_name = dataset["heap"][1]["functionName"]
+                            if script_name + "@" + method_name not in debug.keys():
+                                debug[script_name + "@" + method_name] = []
+                            local = 0
+                            closure = 0
+                            global_i = 0
+                            script = 0
+                            types = []
+                            for item in dataset["heap"][1]["scopeChain"]:
+                                if item["type"] not in types:
+                                    types.append(item["type"])
+                                if item["type"] == "local":
+                                    local += 1
+                                elif item["type"] == "closure":
+                                    closure += 1
+                                elif item["type"] == "global":
+                                    global_i += 1
+                                elif item["type"] == "script":
+                                    script += 1
+                            debug[script_name + "@" + method_name].append(
+                                [local, closure, global_i, script]
+                            )
+                    except:
+                        pass
 
             for mthd in methods.keys():
                 # local, closure, global, script
@@ -394,8 +397,8 @@ def main():
                 folder + "/features.xlsx",
             )
             print(track, func)
-        except:
-            print("not-features: ", site)
+        # except:
+        #     print("not-features: ", site)
 
 
 main()

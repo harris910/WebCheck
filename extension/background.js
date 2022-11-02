@@ -132,7 +132,8 @@ function onEvent(debuggeeId, message, params) {
             console.log("RequestInfo complete! response");
         });
 
-    } else if (message == "Network.responseReceived") {
+    } 
+    else if (message == "Network.responseReceived") {
         chrome.debugger.sendCommand({
             tabId: tabId
         }, "Network.getResponseBody", {
@@ -172,6 +173,127 @@ function onEvent(debuggeeId, message, params) {
         }).then(res => {
             console.log("scriptids complete! response");
         });
+
+        // if (params.url.includes('chrome-extension') && params.url.includes('inject.js') ){
+        //     var storage_setItem = {
+        //         "lineNumber": 5,
+        //         "columnNumber": 4,
+        //     };
+        //     var storage_getItem = {
+        //         "lineNumber": 30,
+        //         "columnNumber": 4,
+        //     };
+        //     var cookie_setItem = {
+        //         "lineNumber": 76,
+        //         "columnNumber": 4,
+        //     };
+        //     var cookie_getItem = {
+        //         "lineNumber": 55,
+        //         "columnNumber": 4,
+        //     };
+        //     var addEventList = {
+        //         "lineNumber": 98,
+        //         "columnNumber": 4,
+        //     };
+        //     var sendBeac = {
+        //         "lineNumber": 125,
+        //         "columnNumber": 4,
+        //     };
+        //     var removeEventList = {
+        //         "lineNumber": 148,
+        //         "columnNumber": 4,
+        //     };
+        //     var setAttrib = {
+        //         "lineNumber": 175,
+        //         "columnNumber": 4,
+        //     };
+        //     var getAttrib = {
+        //         "lineNumber": 201,
+        //         "columnNumber": 4,
+        //     };
+        //     var removeAttrib = {
+        //         "lineNumber": 226,
+        //         "columnNumber": 4,
+        //     };
+
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', storage_setItem, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', storage_getItem, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', cookie_setItem, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', cookie_getItem, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', addEventList, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', storage_setItem, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', sendBeac, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', removeEventList, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', setAttrib, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', getAttrib, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        //     chrome.debugger.sendCommand({
+        //         tabId: debuggeeId.tabId
+        //     }, 'Debugger.setBreakpointByUrl', removeAttrib, (resp) => {
+        //         if (chrome.runtime.lastError) {
+        //             console.log(chrome.runtime.lastError.message);
+        //         }
+        //     })
+        // }
 
         const url = chrome.extension.getURL('breakpoint.json');
         fetch(url)
