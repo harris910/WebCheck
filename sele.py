@@ -15,9 +15,9 @@ import os
 display = Display(visible=0, size=(800, 600))
 display.start()
 
-# df = pd.read_csv(r'3.csv')
+df = pd.read_csv(r"ten.csv")
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([["ebay.com"]], columns=["website"])
+# df = pd.DataFrame([["nytimes.com"]], columns=["website"])
 
 # helper functions for breakpoints
 def getInitiator(stack):
@@ -67,55 +67,55 @@ def addBreakPoints(filename):
                 val = getInitiator(dataset["call_stack"]["stack"])
                 if val is not None and val not in arr:
                     arr.append(val)
-
+    url_inject = "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js"
     storage_setItem = {
         "lineNumber": 5,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "url": url_inject,
         "columnNumber": 4,
     }
     storage_getItem = {
-        "lineNumber": 30,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 35,
+        "url": url_inject,
         "columnNumber": 4,
     }
     cookie_setItem = {
-        "lineNumber": 76,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 87,
+        "url": url_inject,
         "columnNumber": 4,
     }
     cookie_getItem = {
-        "lineNumber": 55,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 66,
+        "url": url_inject,
         "columnNumber": 4,
     }
     addEventList = {
-        "lineNumber": 98,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 112,
+        "url": url_inject,
         "columnNumber": 4,
     }
     sendBeac = {
-        "lineNumber": 125,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 143,
+        "url": url_inject,
         "columnNumber": 4,
     }
     removeEventList = {
-        "lineNumber": 148,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 174,
+        "url": url_inject,
         "columnNumber": 4,
     }
     setAttrib = {
-        "lineNumber": 175,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 206,
+        "url": url_inject,
         "columnNumber": 4,
     }
     getAttrib = {
-        "lineNumber": 201,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 237,
+        "url": url_inject,
         "columnNumber": 4,
     }
     removeAttrib = {
-        "lineNumber": 226,
-        "url": "chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js",
+        "lineNumber": 267,
+        "url": url_inject,
         "columnNumber": 4,
     }
 
@@ -190,35 +190,35 @@ def visitWebsite(df):
 count = 0
 
 for i in df.index:
-    # try:
-    # if i < 273:
-    #     pass
-    # else:
+    try:
+        # if i < 273:
+        #     pass
+        # else:
 
-    # clear breakpoints
-    f = open(
-        "extension/breakpoint.json",
-        "w",
-    )
-    f.write("[]")
-    f.close()
+        # clear breakpoints
+        f = open(
+            "extension/breakpoint.json",
+            "w",
+        )
+        f.write("[]")
+        f.close()
 
-    # visit website
-    visitWebsite(df)
+        # visit website
+        visitWebsite(df)
 
-    # update breakpoints list
-    addBreakPoints("server/output/" + df["website"][i])
-    # delete previous crawl
-    shutil.rmtree("server/output/" + df["website"][i])
+        # update breakpoints list
+        addBreakPoints("server/output/" + df["website"][i])
+        # delete previous crawl
+        shutil.rmtree("server/output/" + df["website"][i])
 
-    # visit website
-    visitWebsite(df)
+        # visit website
+        visitWebsite(df)
 
-    count += 1
-    with open("logs.txt", "w") as log:
-        log.write(str(count))
-        log.close()
-    print(r"Completed: " + str(i) + " website: " + df["website"][i])
-# except:
-#     pass
-#     print(r"Crashed: " + str(i) + " website: " + df["website"][i])
+        count += 1
+        with open("logs.txt", "w") as log:
+            log.write(str(count))
+            log.close()
+        print(r"Completed: " + str(i) + " website: " + df["website"][i])
+    except Exception as e:
+        print("error:", e)
+        print(r"Crashed: " + str(i) + " website: " + df["website"][i])

@@ -5,15 +5,18 @@ from storageNodeHandler import getStorageScriptFromStack
 
 
 def addEventInGraph(folder, filename):
-    # event_dic = {script@method -> [[object HTMLScriptElement], ...]}
-    events_dic = {}
+    try:
+        # event_dic = {script@method -> [[object HTMLScriptElement], ...]}
+        events_dic = {}
 
-    with open(folder + filename) as file:
-        for line in file:
-            dataset = json.loads(line)
-            addEvents(events_dic, dataset)
+        with open(folder + filename) as file:
+            for line in file:
+                dataset = json.loads(line)
+                addEvents(events_dic, dataset)
 
-    return events_dic
+        return events_dic
+    except:
+        return {}
 
 
 def addEvents(events_dic, dataset):

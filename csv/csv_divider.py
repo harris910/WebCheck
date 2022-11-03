@@ -22,3 +22,5 @@ df = df1.iloc[8000:9000, [1]]
 df.to_csv(r"9k.csv")
 df = df1.iloc[9000:10000, [1]]
 df.to_csv(r"10k.csv")
+df = df1.iloc[10000:11000, [1]]
+df.to_csv(r"11k.csv")
