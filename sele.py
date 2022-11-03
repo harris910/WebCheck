@@ -191,34 +191,34 @@ count = 0
 
 for i in df.index:
     try:
-        # if i < 273:
-        #     pass
-        # else:
+        if i < 0:
+            pass
+        else:
 
-        # clear breakpoints
-        f = open(
-            "extension/breakpoint.json",
-            "w",
-        )
-        f.write("[]")
-        f.close()
+            # clear breakpoints
+            f = open(
+                "extension/breakpoint.json",
+                "w",
+            )
+            f.write("[]")
+            f.close()
 
-        # visit website
-        visitWebsite(df)
+            # visit website
+            visitWebsite(df)
 
-        # update breakpoints list
-        addBreakPoints("server/output/" + df["website"][i])
-        # delete previous crawl
-        shutil.rmtree("server/output/" + df["website"][i])
+            # update breakpoints list
+            addBreakPoints("server/output/" + df["website"][i])
+            # delete previous crawl
+            shutil.rmtree("server/output/" + df["website"][i])
 
-        # visit website
-        visitWebsite(df)
+            # visit website
+            visitWebsite(df)
 
-        count += 1
-        with open("logs.txt", "w") as log:
-            log.write(str(count))
-            log.close()
-        print(r"Completed: " + str(i) + " website: " + df["website"][i])
+            count += 1
+            with open("logs.txt", "w") as log:
+                log.write(str(count))
+                log.close()
+            print(r"Completed: " + str(i) + " website: " + df["website"][i])
     except Exception as e:
         print("error:", e)
         print(r"Crashed: " + str(i) + " website: " + df["website"][i])
