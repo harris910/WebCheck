@@ -405,7 +405,7 @@ def main():
             )
             print(track, func)
             count += 1
-            with open("logs.txt", "w") as log:
+            with open("features_logs.txt", "w") as log:
                 log.write(str(count))
                 log.close()
         except Exception as e:

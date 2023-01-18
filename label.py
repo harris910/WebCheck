@@ -195,6 +195,7 @@ def intilization(JSONfile_path, folder):
 
 def main():
     fold = os.listdir("server/output")
+    count = 0
     for f in fold:
         try:
             print("labeled: ", f)
@@ -202,6 +203,10 @@ def main():
                 "server/output/" + f + "/request.json",
                 "server/output/" + f + "/",
             )
+            count += 1
+            with open("label_logs.txt", "w") as log:
+                log.write(str(count))
+                log.close()
         except:
             print("not-labeled: ", f)
 

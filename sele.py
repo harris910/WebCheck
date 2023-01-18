@@ -15,9 +15,9 @@ import os
 display = Display(visible=0, size=(800, 600))
 display.start()
 
-df = pd.read_csv(r"ten.csv")
+# df = pd.read_csv(r"ten.csv")
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-# df = pd.DataFrame([["nytimes.com"]], columns=["website"])
+df = pd.DataFrame([["engadget.com"]], columns=["website"])
 
 # helper functions for breakpoints
 def getInitiator(stack):
@@ -153,16 +153,21 @@ def visitWebsite(df):
     # important for linux
     opt.add_argument("--no-sandbox")
 
-    dc = DesiredCapabilities.CHROME
-    dc["goog:loggingPrefs"] = {"browser": "ALL"}
+    opt.add_argument('--disable-dev-shm-usage')
+
+    # dc = DesiredCapabilities.CHROME
+    # dc["goog:loggingPrefs"] = {"browser": "ALL"}
+    # , desired_capabilities=dc
 
     os.mkdir("server/output/" + df["website"][i])
     driver = webdriver.Chrome(
-        ChromeDriverManager().install(), options=opt, desired_capabilities=dc
+        ChromeDriverManager().install(), options=opt
     )
+    driver.execute_script("window.scrollTo(0, 200)")
     requests.post(
         url="http://localhost:3000/complete", data={"website": df["website"][i]}
     )
+
     driver.get(r"https://" + df["website"][i])
 
     # sleep
@@ -192,6 +197,7 @@ count = 0
 for i in df.index:
     try:
         if i < 0:
+            count += 1
             pass
         else:
 
@@ -219,6 +225,11 @@ for i in df.index:
                 log.write(str(count))
                 log.close()
             print(r"Completed: " + str(i) + " website: " + df["website"][i])
+            os.system("pkill chrome")
+            os.system("pkill google-chrome")
     except Exception as e:
+        os.system("pkill chrome")
+        os.system("pkill google-chrome")
+        shutil.rmtree("server/output/" + df["website"][i])
         print("error:", e)
         print(r"Crashed: " + str(i) + " website: " + df["website"][i])
