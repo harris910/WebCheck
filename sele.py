@@ -17,7 +17,7 @@ display.start()
 
 # df = pd.read_csv(r"ten.csv")
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([["engadget.com"]], columns=["website"])
+df = pd.DataFrame([["livescore.com"]], columns=["website"])
 
 # helper functions for breakpoints
 def getInitiator(stack):
@@ -153,16 +153,14 @@ def visitWebsite(df):
     # important for linux
     opt.add_argument("--no-sandbox")
 
-    opt.add_argument('--disable-dev-shm-usage')
+    opt.add_argument("--disable-dev-shm-usage")
 
     # dc = DesiredCapabilities.CHROME
     # dc["goog:loggingPrefs"] = {"browser": "ALL"}
     # , desired_capabilities=dc
 
     os.mkdir("server/output/" + df["website"][i])
-    driver = webdriver.Chrome(
-        ChromeDriverManager().install(), options=opt
-    )
+    driver = webdriver.Chrome(ChromeDriverManager().install(), options=opt)
     driver.execute_script("window.scrollTo(0, 200)")
     requests.post(
         url="http://localhost:3000/complete", data={"website": df["website"][i]}

@@ -109,6 +109,7 @@ def getStorageScriptFromStack(script):
     except:
         pass
 
+
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
 # return https://c.amazon-adsystem.com/aax2/apstag.js
 def getStorageScriptFromStackWebGraph(script):

@@ -109,6 +109,7 @@ def main():
                 if (
                     data[key][1] == "ScriptMethod"
                     and key != "ScriptMethod@@"
+                    and key != "ScriptMethod@"
                     and "chrome-extension" not in key
                 ):
 

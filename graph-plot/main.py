@@ -1,3 +1,4 @@
+from populateGraphWithCallStack import createWebGraphWithCallStack
 from populateGraph import createWebGraph
 import networkx as nx
 import os
@@ -12,6 +13,7 @@ def main():
         try:
             print("graph-plot: ", f)
             createWebGraph(f)
+            # createWebGraphWithCallStack(f)
             count += 1
             with open("graph_logs.txt", "w") as log:
                 log.write(str(count))
