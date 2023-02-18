@@ -12,8 +12,8 @@ def main():
     for f in fold:
         try:
             print("graph-plot: ", f)
-            createWebGraph(f)
-            # createWebGraphWithCallStack(f)
+            # createWebGraph(f)
+            createWebGraphWithCallStack(f)
             count += 1
             with open("graph_logs.txt", "w") as log:
                 log.write(str(count))

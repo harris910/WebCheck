@@ -1,6 +1,69 @@
 var cookieGetter = document.__lookupGetter__("cookie").bind(document);
 var cookieSetter = document.__lookupSetter__("cookie").bind(document);
 
+// function overrideProperty(object, propertyName) {
+//     const originalValue = object[propertyName];
+//     Object.defineProperty(object, propertyName, {
+//       get() {
+//         fetch("http://localhost:3000/eventget", {
+//           method: "POST",
+//           body: JSON.stringify({
+//             "top_level_url": window.location.href,
+//             "event": propertyName,
+//             "stack": new Error().stack
+//           }),
+//           mode: 'cors',
+//           headers: {
+//             'Access-Control-Allow-Origin': '*',
+//             "Content-Type": "application/json"
+//           }
+//         }).then(res => {
+//           console.log(`${propertyName} collected`);
+//         });
+//         return originalValue;
+//       },
+//       set(newValue) {
+//         fetch("http://localhost:3000/eventset", {
+//           method: "POST",
+//           body: JSON.stringify({
+//             "top_level_url": window.location.href,
+//             "event": propertyName,
+//             "value": newValue,
+//             "stack": new Error().stack
+//           }),
+//           mode: 'cors',
+//           headers: {
+//             'Access-Control-Allow-Origin': '*',
+//             "Content-Type": "application/json"
+//           }
+//         }).then(res => {
+//           console.log(`${propertyName} collected`);
+//         });
+//         originalValue = newValue;
+//       }
+//     });
+// }
+
+// overrideProperty(navigator.connection, 'downlink');
+// overrideProperty(navigator.connection, 'downlinkMax');
+// overrideProperty(navigator.connection, 'rtt');
+// overrideProperty(navigator.geolocation, 'longitude');
+// overrideProperty(navigator.geolocation, 'altitudeAccuracy');
+// overrideProperty(document, 'visibilityState');
+// overrideProperty(Touch, 'force');
+// overrideProperty(Touch, 'rotationAngle');
+// overrideProperty(Navigator, 'userAgent');
+// overrideProperty(Navigator, 'webdriver');
+// overrideProperty(Navigator, 'plugins');
+// overrideProperty(Navigator, 'vendorSub');
+// overrideProperty(Navigator, 'hardwareConcurrency');
+// overrideProperty(Navigator, 'oscpu');
+// overrideProperty(Navigator, 'deviceMemory');
+// overrideProperty(MouseEvent, 'movementX');
+// overrideProperty(BatteryManager, 'chargingTime');
+// overrideProperty(BatteryManager, 'dischargingTime');
+
+
 let originalFunction = window.Storage.prototype.setItem;
 window.Storage.prototype.setItem = function(keyName, keyValue) {
     try{
@@ -61,7 +124,6 @@ window.Storage.prototype.getItem = function(keyName) {
     }
 }
 
-
 Object.defineProperty(document, 'cookie', {
     get: function() {
         var storedCookieStr = cookieGetter();
@@ -107,8 +169,6 @@ Object.defineProperty(document, 'cookie', {
 
 var addEventList = EventTarget.prototype.addEventListener;
 EventTarget.prototype.addEventListener = function(type, fn, capture) {
-    // this.addEventList = addEventList;
-    // this.addEventList(type, fn, capture);
     try{
         addEventList.apply(this, arguments)
         fetch("http://localhost:3000/eventset", {
@@ -119,7 +179,7 @@ EventTarget.prototype.addEventListener = function(type, fn, capture) {
                 "type": type,
                 "function": fn,
                 "capture": capture,
-                "this": String(this),
+                "this": JSON.stringify(this),
                 "stack": new Error().stack
             }),
             mode: 'cors',
@@ -198,6 +258,7 @@ EventTarget.prototype.removeEventListener = function(type, fn, capture) {
         removeEventList.apply(this, arguments)
     }
 }
+
 
 var setAttrib = Element.prototype.setAttribute;
 Element.prototype.setAttribute = function(name, value) {

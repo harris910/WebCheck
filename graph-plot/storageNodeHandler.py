@@ -33,7 +33,7 @@ def addStorage(script_dic, storage_dic, dataset):
                         dataset["cookie"].split(";")[0].split("=")[1]
                     )
 
-                script_url = getStorageScriptFromStack(dataset["stack"])
+                script_url = getStorageScriptFromStackWebGraph(dataset["stack"])
                 if script_url not in script_dic.keys():
                     script_dic[script_url] = [[], []]
                 if (
@@ -47,7 +47,7 @@ def addStorage(script_dic, storage_dic, dataset):
         elif dataset["function"] == "cookie_getter":
             if dataset["cookie"] != "":
 
-                script_url = getStorageScriptFromStack(dataset["stack"])
+                script_url = getStorageScriptFromStackWebGraph(dataset["stack"])
                 lst = dataset["cookie"].split(";")
                 for item in lst:
                     if item.split("=")[0].strip() not in storage_dic.keys():
@@ -67,7 +67,7 @@ def addStorage(script_dic, storage_dic, dataset):
 
         else:
             if dataset["storage"] != "":
-                script_url = getStorageScriptFromStack(dataset["stack"])
+                script_url = getStorageScriptFromStackWebGraph(dataset["stack"])
                 storage_obj = json.dumps(dataset["storage"])
                 storage_obj = json.loads(storage_obj)
 
@@ -97,17 +97,35 @@ def addStorage(script_dic, storage_dic, dataset):
 
 
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
+# "Error\n    at window.Storage.getItem (chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26)\n    at r (https://www.livescore.com/_next/static/chunks/pages/_app-8de19a76a105c2a5.js:1:53208)"
 # return https://c.amazon-adsystem.com/aax2/apstag.js@l
 def getStorageScriptFromStack(script):
-    try:
-        script = script.split("\n")[2]
-        method = script.split("(")[0].strip().split(" ")[1]  # l
-        script = script.split("(")[
-            1
-        ]  # https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
-        return "https:" + script.split(":")[1] + "@" + method
-    except:
+    unique_scripts = []
+    if script is not "":
+      try:
+        stack = script.split("at ")
+        for item in stack:
+            if item.startswith("Error") or "chrome-extension" in item:
+                pass
+            elif "(" in item:
+                #at window.Storage.getItem (chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26)\n    
+                method = item.split("(")[0].strip() # l
+                script = item.split("(")[
+                    1
+                ]
+                script = "https:" + script.split(":")[1]
+                if script +"@"+method not in unique_scripts:
+                  unique_scripts.append(script +"@"+method)
+            else:
+                #at chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26\n  
+                method = ""
+                script = item.strip()
+                script = "https:" + script.split(":")[1]
+                if script +"@"+ method not in unique_scripts:
+                  unique_scripts.append(script +"@"+ method)
+      except:
         pass
+    return unique_scripts
 
 
 # script sample -> at l (https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
@@ -119,7 +137,7 @@ def getStorageScriptFromStackWebGraph(script):
         script = script.split("(")[
             1
         ]  # https://c.amazon-adsystem.com/aax2/apstag.js:2:1929)
-        return "https:" + script.split(":")[1]
+        return "https:" + script.split(":")[1] + "@" + method
     except:
         pass
 
@@ -132,3 +150,4 @@ def getStorageDic(storage_dic, _key):
             return key
     storage_dic[_key] = []
     return _key
+

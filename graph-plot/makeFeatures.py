@@ -14,7 +14,6 @@ import os
 def convGraphToNX(file):
     return nx_agraph.from_agraph(pygraphviz.AGraph(file))
 
-
 def dicToExcel(dict, path):
     df = pd.DataFrame(data=dict)
     df = df.T
@@ -22,7 +21,8 @@ def dicToExcel(dict, path):
         "script_name",
         "method_name",
         "label",
-        "num_requests_sent",
+        "is_mixed",
+        "num_req_sent",
         "num_nodes",
         "num_edges",
         "nodes_div_by_edges",
@@ -41,6 +41,12 @@ def dicToExcel(dict, path):
         "ascendant_script_has_eval_or_function",
         "num_script_successors",
         "num_script_predecessors",
+        "num_method_successors",
+        "num_method_predecessors",
+        "descendant_of_storage_node",
+        "ascendant_of_storage_node",
+        "is_initiator",
+        "immediate_method",
         "storage_getter",
         "storage_setter",
         "cookie_getter",
@@ -51,10 +57,13 @@ def dicToExcel(dict, path):
         "removeAttribute",
         "removeEventListener",
         "sendBeacon",
+        "has_fingerprinting_eventlistner",
+        "descendant_of_fingerprinting",
+        "ascendant_of_fingerprinting",
         "num_local",
         "num_closure",
         "num_global",
-        "num_script",
+        "num_script"
     ]
     df.to_excel(path)
 
@@ -64,10 +73,30 @@ def fileToCount(file, types, category):
         dic = {}
         for line in file:
             dataset = json.loads(line)
-            script_url = getStorageScriptFromStack(dataset["stack"])
-            if script_url not in dic:
-                dic[script_url] = [0] * len(types)
-            dic[script_url][types.index(dataset[category])] += 1
+            script_urls = getStorageScriptFromStack(dataset["stack"])
+            for script_url in script_urls:
+                if script_url not in dic:
+                    dic[script_url] = [0] * len(types)
+                dic[script_url][types.index(dataset[category])] += 1
+        # print(dic)
+        return dic
+    except:
+        return {}
+
+def searchKeywords(file, keywords):
+    try:
+        dic = {}
+        for line in file:
+            dataset = json.loads(line)
+            if dataset["event"] == "addEventListener":
+                script_urls = getStorageScriptFromStack(dataset["stack"])
+                for script_url in script_urls:
+                    if script_url not in dic:
+                        dic[script_url] = 0
+
+                    for itm in keywords:
+                        if itm in dataset["type"]: 
+                            dic[script_url] += 1
         return dic
     except:
         return {}
@@ -78,11 +107,53 @@ def main():
     fold = os.listdir("server/output")
     for site in fold:
         try:
-            # methods = {id: ['script_name-0', 'method_name-1', 'label-2', 'num_requests_sent-3', 'num_node-4', 'num_edges-5', 'nodes_div_by_edges-6', 'edges_div_by_nodes-7', 'in_degree-8', 'out_degree-9', 'in_out_degree-10', 'ancestor-11', 'descendants-12',
-            # 'closeness_centrality-13', 'in_degree_centrality-14', 'out_degree_centrality-15', 'is_anonymous-16', 'is_eval_or_external_function-17', 'descendant_of_eval_or_function-18', 'ascendant_script_has_eval_or_function-19','num_script_successors-20',
-            # 'num_script_predecessors-21', 'storage_getter-22', 'storage_setter-23', 'cookie_getter-24', 'cookie_setter-25', "getAttribute-26", "setAttribute-27", "addEventListener-28",
-            # "removeAttribute-29", "removeEventListener-30", "sendBeacon-31", "num_local-32", "num_closure-33", "num_global-34", "num_script-35"]}
-            methods = {}
+            # "script_name-0",
+            # "method_name-1",
+            # "label-2",
+            # "is_mixed-3",
+            # "num_req_sent-4",
+            # "num_nodes-5",
+            # "num_edges-6",
+            # "nodes_div_by_edges-7",
+            # "edges_div_by_nodes-8",
+            # "in_degree-9",
+            # "out_degree-10",
+            # "in_out_degree-11",
+            # "ancestor-12",
+            # "descendants-13",
+            # "closeness_centrality-14",
+            # "in_degree_centrality-15",
+            # "out_degree_centrality-16",
+            # "is_anonymous-17",
+            # "is_eval_or_external_function-18",
+            # "descendant_of_eval_or_function-19",
+            # "ascendant_script_has_eval_or_function-20",
+            # "num_script_successors-21",
+            # "num_script_predecessors-22",
+            # "num_method_successors-23",
+            # "num_method_predecessors-24",
+            # "descendant_of_storage_node-25",
+            # "ascendant_of_storage_node-26",
+            # "is_initiator-27",
+            # "immediate_method-28",
+            # "storage_getter-29",
+            # "storage_setter-30",
+            # "cookie_getter-31",
+            # "cookie_setter-32",
+            # "getAttribute-33",
+            # "setAttribute-34",
+            # "addEventListener-35",
+            # "removeAttribute-36",
+            # "removeEventListener-37",
+            # "sendBeacon-38",
+            # "has_fingerprinting_eventlistner-39",
+            # "descendant_of_fingerprinting-40",
+            # "ascendant_of_fingerprinting-41",
+            # "num_local-42",
+            # "num_closure-43",
+            # "num_global-44",
+            # "num_script-45"
+            methods = {} 
 
             print("features: ", site)
 
@@ -99,7 +170,16 @@ def main():
             func = 0
             is_eval_or_external_function_ids = []
             script_ids = []
+            methd_ids = []
+            network_ids = []
+            storage_ids = []
             for key in data.keys():
+
+                if data[key][1] == "Network":
+                    network_ids.append(data[key][0])
+
+                if data[key][1] == "Storage":
+                    storage_ids.append(data[key][0])
 
                 if data[key][1] == "Script":
                     script_ids.append(data[key][0])
@@ -112,7 +192,7 @@ def main():
                     and key != "ScriptMethod@"
                     and "chrome-extension" not in key
                 ):
-
+                    methd_ids.append(data[key][0])
                     if data[key][0] not in methods.keys():
                         # https:115 -- handling such cases
                         if "https://" in key.split("@")[1]:
@@ -126,16 +206,20 @@ def main():
                     # label as functional (label -> 0)
                     if data[key][2] == 0 and data[key][3] != 0:
                         methods[data[key][0]].append(0)
+                        methods[data[key][0]].append(0)
                         func += data[key][3]
                     # label as tracking (label -> 1)
                     elif data[key][3] == 0 and data[key][2] != 0:
                         methods[data[key][0]].append(1)
+                        methods[data[key][0]].append(0)
                         track += data[key][2]
-                    # label mixed as tracking (label -> 1)
+                    # label mixed as functional (label -> 0)
                     elif data[key][2] != 0 and data[key][3] != 0:
+                        methods[data[key][0]].append(0)
                         methods[data[key][0]].append(1)
                     # label no initialization methods as functional (label -> 0)
                     elif data[key][2] == 0 and data[key][3] == 0:
+                        methods[data[key][0]].append(0)
                         methods[data[key][0]].append(0)
                     # num_requests_sent
                     methods[data[key][0]].append(data[key][2] + data[key][3])
@@ -193,23 +277,48 @@ def main():
                 # ascendant_script_has_eval_or_function
                 # num_script_successors
                 # num_script_predecessors
+                # num_method_successors
+                # num_method_predecessors
+                # descendant_of_storage_node
+                # ascendant_of_storage_node
+                # is_initiator
+                # immediate_method
+                methods[key].append(0)
+                methods[key].append(0)
+                methods[key].append(0)
+                methods[key].append(0)
+                methods[key].append(0)
+                methods[key].append(0)
                 methods[key].append(0)
                 methods[key].append(0)
                 methods[key].append(0)
                 methods[key].append(0)
                 for node_id in nx.descendants(graph, str(key)):
                     if int(node_id) in is_eval_or_external_function_ids:
-                        methods[key][18] = 1
-                    if int(node_id) in script_ids:
-                        methods[key][20] += 1
-                for node_id in nx.ancestors(graph, str(key)):
-                    if int(node_id) in is_eval_or_external_function_ids:
                         methods[key][19] = 1
                     if int(node_id) in script_ids:
                         methods[key][21] += 1
+                    if int(node_id) in methd_ids:
+                        methods[key][23] += 1
+                    if int(node_id) in storage_ids:
+                        methods[key][25] += 1
+                for node_id in nx.ancestors(graph, str(key)):
+                    if int(node_id) in is_eval_or_external_function_ids:
+                        methods[key][20] = 1
+                    if int(node_id) in script_ids:
+                        methods[key][22] += 1
+                    if int(node_id) in methd_ids:
+                        methods[key][24] += 1
+                    if int(node_id) in storage_ids:
+                        methods[key][26] += 1
 
-            # nodes = nx.closeness_centrality(graph)
-            # print(nx.reciprocity(graph, method_ids))
+                immediate_childs = graph.successors(str(key))
+                for node_id in immediate_childs:
+                    if int(node_id) in network_ids:
+                        methods[key][27] = 1
+                    if  int(node_id) in methd_ids:
+                        methods[key][28] += 1
+    
 
             # 'storage_getter', 'storage_setter', 'cookie_getter', 'cookie_setter'
             try:
@@ -232,10 +341,16 @@ def main():
                     for key in storage.keys():
                         if methods[mthd][0] + "@" + methods[mthd][1] == key:
                             # ["storage_getter", "storage_setter", "cookie_getter", "cookie_setter"]
-                            methods[mthd][22] = storage[key][0]
-                            methods[mthd][23] = storage[key][1]
-                            methods[mthd][24] = storage[key][2]
-                            methods[mthd][25] = storage[key][3]
+                            methods[mthd][29] = storage[key][0]
+                            methods[mthd][30] = storage[key][1]
+                            methods[mthd][31] = storage[key][2]
+                            methods[mthd][32] = storage[key][3]
+                        # hadnling cases where call_stack of network request differ
+                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                            methods[mthd][29] = storage[key][0]
+                            methods[mthd][30] = storage[key][1]
+                            methods[mthd][31] = storage[key][2]
+                            methods[mthd][32] = storage[key][3]
             except:
                 pass
 
@@ -248,7 +363,10 @@ def main():
                     for key in storage.keys():
                         if methods[mthd][0] + "@" + methods[mthd][1] == key:
                             # ["getAttribute"]
-                            methods[mthd][26] = storage[key][0]
+                            methods[mthd][33] = storage[key][0]
+                        # hadnling cases where call_stack of network request differ
+                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                            methods[mthd][33] = storage[key][0]
             except:
                 pass
 
@@ -275,13 +393,65 @@ def main():
                     for key in storage.keys():
                         if methods[mthd][0] + "@" + methods[mthd][1] == key:
                             # ["setAttribute", "addEventListener", "removeAttribute", "removeEventListener", "sendBeacon"]
-                            methods[mthd][27] = storage[key][0]
-                            methods[mthd][28] = storage[key][1]
-                            methods[mthd][29] = storage[key][2]
-                            methods[mthd][30] = storage[key][3]
-                            methods[mthd][31] = storage[key][4]
+                            methods[mthd][34] = storage[key][0]
+                            methods[mthd][35] = storage[key][1]
+                            methods[mthd][36] = storage[key][2]
+                            methods[mthd][37] = storage[key][3]
+                            methods[mthd][38] = storage[key][4]
+                        # hadnling cases where call_stack of network request differ 
+                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                            methods[mthd][34] = storage[key][0]
+                            methods[mthd][35] = storage[key][1]
+                            methods[mthd][36] = storage[key][2]
+                            methods[mthd][37] = storage[key][3]
+                            methods[mthd][38] = storage[key][4]
             except:
                 pass
+            
+            fingerprinting_ids = []
+            # has_fingerprinting_eventlistner
+            try:
+                with open(folder + "eventset.json") as file:
+                    storage = searchKeywords(
+                        file,
+                        [
+                            "analytic",
+                            "track",
+                            "touchstart",
+                            "visibilitychange",
+                            "mousemove",
+                            "copy",
+                            "paste",
+                            "geolocation",
+                        ])
+                for mthd in methods.keys():
+                    methods[mthd].append(0)
+                    for key in storage.keys():
+                        if methods[mthd][0] + "@" + methods[mthd][1] == key:
+                            # ["analytic", "track", "touchstart", "visibilitychange", "mousemove", "copy", "paste", "geolocation"]
+                            methods[mthd][39] = storage[key]
+                            fingerprinting_ids.append(int(mthd))
+                        # hadnling cases where call_stack of network request differ slightly from addEventList
+                        # e.g 'Object._.db' in addEventList and '_.db' in network request
+                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                            # ["analytic", "track", "touchstart", "visibilitychange", "mousemove", "copy", "paste", "geolocation"]
+                            methods[mthd][39] = storage[key]
+                            fingerprinting_ids.append(int(mthd))
+
+            except:
+                pass
+
+            for mthd in methods.keys():
+                # descendant_of_fingerprinting_node
+                # ascendant_of_fingerprinting_node
+                methods[mthd].append(0)
+                methods[mthd].append(0)
+                for node_id in nx.descendants(graph, str(mthd)):
+                        if int(node_id) in fingerprinting_ids:
+                            methods[mthd][40] += 1
+                for node_id in nx.ancestors(graph, str(mthd)):
+                        if int(node_id) in fingerprinting_ids:
+                            methods[mthd][41] += 1
 
             # script@method: [[local, closure, global, script]]
             debug = {}
@@ -369,22 +539,22 @@ def main():
                 methods[mthd].append(0)
                 methods[mthd].append(0)
                 if methods[mthd][0] + "@" + methods[mthd][1] in debug.keys():
-                    methods[mthd][32] = debug[
+                    methods[mthd][42] = debug[
                         methods[mthd][0] + "@" + methods[mthd][1]
                     ][0][
                         0
                     ]  # local
-                    methods[mthd][33] = debug[
+                    methods[mthd][43] = debug[
                         methods[mthd][0] + "@" + methods[mthd][1]
                     ][0][
                         1
                     ]  # closure
-                    methods[mthd][34] = debug[
+                    methods[mthd][44] = debug[
                         methods[mthd][0] + "@" + methods[mthd][1]
                     ][0][
                         2
                     ]  # global
-                    methods[mthd][35] = debug[
+                    methods[mthd][45] = debug[
                         methods[mthd][0] + "@" + methods[mthd][1]
                     ][0][
                         3
@@ -395,10 +565,10 @@ def main():
                             key.split("@")[0] == methods[mthd][0]
                             and key.split("@")[1] in methods[mthd][1]
                         ):
-                            methods[mthd][32] = debug[key][0][0]  # local
-                            methods[mthd][33] = debug[key][0][1]  # closure
-                            methods[mthd][34] = debug[key][0][2]  # global
-                            methods[mthd][35] = debug[key][0][3]  # script
+                            methods[mthd][42] = debug[key][0][0]  # local
+                            methods[mthd][43] = debug[key][0][1]  # closure
+                            methods[mthd][44] = debug[key][0][2]  # global
+                            methods[mthd][45] = debug[key][0][3]  # script
 
             dicToExcel(
                 methods,
@@ -414,3 +584,4 @@ def main():
 
 
 main()
+
