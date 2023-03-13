@@ -21,7 +21,7 @@ def dicToExcel(dict, path):
         "script_name",
         "method_name",
         "label",
-        "is_mixed",
+        "stack_hash",
         "num_req_sent",
         "num_nodes",
         "num_edges",
@@ -110,7 +110,7 @@ def main():
             # "script_name-0",
             # "method_name-1",
             # "label-2",
-            # "is_mixed-3",
+            # "stack_hash-3",
             # "num_req_sent-4",
             # "num_nodes-5",
             # "num_edges-6",
@@ -206,21 +206,23 @@ def main():
                     # label as functional (label -> 0)
                     if data[key][2] == 0 and data[key][3] != 0:
                         methods[data[key][0]].append(0)
-                        methods[data[key][0]].append(0)
+                        # methods[data[key][0]].append(0)
                         func += data[key][3]
                     # label as tracking (label -> 1)
                     elif data[key][3] == 0 and data[key][2] != 0:
                         methods[data[key][0]].append(1)
-                        methods[data[key][0]].append(0)
+                        # methods[data[key][0]].append(0)
                         track += data[key][2]
                     # label mixed as functional (label -> 0)
                     elif data[key][2] != 0 and data[key][3] != 0:
                         methods[data[key][0]].append(0)
-                        methods[data[key][0]].append(1)
+                        # methods[data[key][0]].append(1)
                     # label no initialization methods as functional (label -> 0)
                     elif data[key][2] == 0 and data[key][3] == 0:
                         methods[data[key][0]].append(0)
-                        methods[data[key][0]].append(0)
+                        # methods[data[key][0]].append(0)
+                    # stack hash
+                    methods[data[key][0]].append(key.split("@")[3])
                     # num_requests_sent
                     methods[data[key][0]].append(data[key][2] + data[key][3])
 

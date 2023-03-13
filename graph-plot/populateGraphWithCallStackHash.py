@@ -1,6 +1,7 @@
 # This file contains the logic to populate edges and nodes in the graph of the webpage.
 import json
 import numpy as np
+import hashlib
 from storageNodeHandler import addStorage, getStorageDic
 from inforShareHandler import getReqCookie, IsInfoShared
 from redirectionEdgeHandler import getRedirection
@@ -52,10 +53,22 @@ def rec_stack_checker(stack, unique_scripts):
     else:
         rec_stack_checker(stack["parent"], unique_scripts)
 
+def getHashString(array_of_strings):
+    # Join the strings in the array with a separator to form a single string
+    joined_string = ','.join(array_of_strings)
+    # Create a hash object using the SHA-256 algorithm
+    hash_object = hashlib.sha256()
+    # Update the hash object with the joined string
+    hash_object.update(joined_string.encode())
+    # Get the hexadecimal representation of the hash
+    hash_hex = hash_object.hexdigest()
+    return hash_hex
 
 def addCallStackInfo(nodes, edges, callstack, TC, FC, classlabel):
     unique_scripts = CheckAncestoralNodes(callstack)
     # unique_scripts = [stacktop1@method, stacktop2@method, stacktop3@method, ...]
+    # get string hash
+    hashval = getHashString(unique_scripts)
     for i in range(1, len(unique_scripts)):
         # stacktop1
         tar = addNode(
@@ -63,7 +76,10 @@ def addCallStackInfo(nodes, edges, callstack, TC, FC, classlabel):
             "ScriptMethod@"
             + unique_scripts[i - 1].split("@")[0]
             + "@"
-            + unique_scripts[i - 1].split("@")[1],
+            + unique_scripts[i - 1].split("@")[1]
+            + "@"
+            + hashval
+            ,
             "ScriptMethod",
             TC,
             FC,
@@ -86,7 +102,10 @@ def addCallStackInfo(nodes, edges, callstack, TC, FC, classlabel):
             "ScriptMethod@"
             + unique_scripts[i].split("@")[0]
             + "@"
-            + unique_scripts[i].split("@")[1],
+            + unique_scripts[i].split("@")[1]
+            + "@"
+            + hashval
+            ,
             "ScriptMethod",
             TC,
             FC,
@@ -105,6 +124,8 @@ def addCallStackInfo(nodes, edges, callstack, TC, FC, classlabel):
 
         # method-method relationship
         addEdge(edges, src, tar, "callstack")
+
+    return hashval
 
 
 def createWebGraphWithCallStack(url):
@@ -144,7 +165,7 @@ def createWebGraphWithCallStack(url):
     for key in script_dic:
         if key is not None:
             src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
-            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key + "@None", "ScriptMethod", 0, 0, 0)
             # adding script and method relationship
             addEdge(edges, src, src2, "partof")
             # adding cookie setter and method realtionship
@@ -177,7 +198,7 @@ def createWebGraphWithCallStack(url):
     for key in event_dic:
         if key is not None:
             src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
-            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key + "@None", "ScriptMethod", 0, 0, 0)
             # adding script and method relationship
             addEdge(edges, src, src2, "partof")
 
@@ -193,7 +214,7 @@ def createWebGraphWithCallStack(url):
     for key in event_dic:
         if key is not None:
             src = addNode(nodes, "Script@" + key.split("@")[0], "Script", 0, 0, 0)
-            src2 = addNode(nodes, "ScriptMethod@" + key, "ScriptMethod", 0, 0, 0)
+            src2 = addNode(nodes, "ScriptMethod@" + key + "@None", "ScriptMethod", 0, 0, 0)
             # adding script and method relationship
             addEdge(edges, src, src2, "partof")
 
@@ -203,6 +224,8 @@ def createWebGraphWithCallStack(url):
                 # adding method and event edge
                 addEdge(edges, tar, src2, "event get")
 
+    track = 0
+    func = 0
     # reading big request data line by line
     with open(folder + "label_request.json") as file:
         for line in file:
@@ -269,6 +292,7 @@ def createWebGraphWithCallStack(url):
                             0,
                             0,
                         )
+
                 # create edge between the Request -> HTML/Script
                 addEdge(edges, src, tar, "Network->HTML/Script")
 
@@ -284,10 +308,15 @@ def createWebGraphWithCallStack(url):
                         or dataset["easyprivacylistflag"] == 1
                         or dataset["ancestorflag"] == 1
                     ):
+                        # incoporate call stack script and methods with same labels
+                        hashval = addCallStackInfo(nodes, edges, dataset["call_stack"], 1, 0, 0)
                         tar = addNode(
                             nodes,
                             "ScriptMethod@"
-                            + getInitiator(dataset["call_stack"]["stack"]),
+                            + getInitiator(dataset["call_stack"]["stack"])
+                            + "@"
+                            + hashval
+                            ,
                             "ScriptMethod",
                             1,
                             0,
@@ -301,13 +330,16 @@ def createWebGraphWithCallStack(url):
                             0,
                             0,
                         )
-                        # incoporate call stack script and methods with same labels
-                        addCallStackInfo(nodes, edges, dataset["call_stack"], 1, 0, 0)
                     else:
+                        # incoporate call stack script and methods with same labels
+                        hashval = addCallStackInfo(nodes, edges, dataset["call_stack"], 0, 1, 0)
                         tar = addNode(
                             nodes,
                             "ScriptMethod@"
-                            + getInitiator(dataset["call_stack"]["stack"]),
+                            + getInitiator(dataset["call_stack"]["stack"])
+                            + "@"
+                            + hashval
+                            ,
                             "ScriptMethod",
                             0,
                             1,
@@ -321,8 +353,7 @@ def createWebGraphWithCallStack(url):
                             1,
                             0,
                         )
-                        # incoporate call stack script and methods with same labels
-                        addCallStackInfo(nodes, edges, dataset["call_stack"], 0, 1, 0)
+                        
                     addEdge(edges, tar, src, "Initiated")
                     addEdge(edges, tar2, tar, "partof")
                 else:
@@ -357,7 +388,7 @@ def createWebGraphWithCallStack(url):
                 val = IsInfoShared(storage_dic, dataset["http_req"])
                 if val is not None:
                     addEdge(edges, nodes["Storage@" + val][0], src, "Info Shared")
-    
+
     json.dump(nodes, open(folder + "nodes.json", "w"))
     json.dump(edges, open(folder + "edges.json", "w"))
     json.dump(script_dic, open(folder + "script.json", "w"))

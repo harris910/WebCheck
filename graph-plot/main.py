@@ -1,5 +1,5 @@
-from populateGraphWithCallStack import createWebGraphWithCallStack
-from populateGraph import createWebGraph
+# from populateGraphWithCallStack import createWebGraphWithCallStack
+from populateGraphWithCallStackHash import createWebGraphWithCallStack
 import networkx as nx
 import os
 
@@ -12,7 +12,6 @@ def main():
     for f in fold:
         try:
             print("graph-plot: ", f)
-            # createWebGraph(f)
             createWebGraphWithCallStack(f)
             count += 1
             with open("graph_logs.txt", "w") as log:
