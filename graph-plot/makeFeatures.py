@@ -14,6 +14,7 @@ import os
 def convGraphToNX(file):
     return nx_agraph.from_agraph(pygraphviz.AGraph(file))
 
+
 def dicToExcel(dict, path):
     df = pd.DataFrame(data=dict)
     df = df.T
@@ -21,7 +22,7 @@ def dicToExcel(dict, path):
         "script_name",
         "method_name",
         "label",
-        "stack_hash",
+        "is_mixed",
         "num_req_sent",
         "num_nodes",
         "num_edges",
@@ -63,7 +64,7 @@ def dicToExcel(dict, path):
         "num_local",
         "num_closure",
         "num_global",
-        "num_script"
+        "num_script",
     ]
     df.to_excel(path)
 
@@ -83,6 +84,7 @@ def fileToCount(file, types, category):
     except:
         return {}
 
+
 def searchKeywords(file, keywords):
     try:
         dic = {}
@@ -95,7 +97,7 @@ def searchKeywords(file, keywords):
                         dic[script_url] = 0
 
                     for itm in keywords:
-                        if itm in dataset["type"]: 
+                        if itm in dataset["type"]:
                             dic[script_url] += 1
         return dic
     except:
@@ -153,7 +155,7 @@ def main():
             # "num_closure-43",
             # "num_global-44",
             # "num_script-45"
-            methods = {} 
+            methods = {}
 
             print("features: ", site)
 
@@ -174,7 +176,6 @@ def main():
             network_ids = []
             storage_ids = []
             for key in data.keys():
-
                 if data[key][1] == "Network":
                     network_ids.append(data[key][0])
 
@@ -206,23 +207,23 @@ def main():
                     # label as functional (label -> 0)
                     if data[key][2] == 0 and data[key][3] != 0:
                         methods[data[key][0]].append(0)
-                        # methods[data[key][0]].append(0)
+                        methods[data[key][0]].append(0)
                         func += data[key][3]
                     # label as tracking (label -> 1)
                     elif data[key][3] == 0 and data[key][2] != 0:
                         methods[data[key][0]].append(1)
-                        # methods[data[key][0]].append(0)
+                        methods[data[key][0]].append(0)
                         track += data[key][2]
                     # label mixed as functional (label -> 0)
                     elif data[key][2] != 0 and data[key][3] != 0:
                         methods[data[key][0]].append(0)
-                        # methods[data[key][0]].append(1)
+                        methods[data[key][0]].append(1)
                     # label no initialization methods as functional (label -> 0)
                     elif data[key][2] == 0 and data[key][3] == 0:
                         methods[data[key][0]].append(0)
-                        # methods[data[key][0]].append(0)
+                        methods[data[key][0]].append(0)
                     # stack hash
-                    methods[data[key][0]].append(key.split("@")[3])
+                    # methods[data[key][0]].append(key.split("@")[3])
                     # num_requests_sent
                     methods[data[key][0]].append(data[key][2] + data[key][3])
 
@@ -318,9 +319,8 @@ def main():
                 for node_id in immediate_childs:
                     if int(node_id) in network_ids:
                         methods[key][27] = 1
-                    if  int(node_id) in methd_ids:
+                    if int(node_id) in methd_ids:
                         methods[key][28] += 1
-    
 
             # 'storage_getter', 'storage_setter', 'cookie_getter', 'cookie_setter'
             try:
@@ -348,7 +348,10 @@ def main():
                             methods[mthd][31] = storage[key][2]
                             methods[mthd][32] = storage[key][3]
                         # hadnling cases where call_stack of network request differ
-                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                        elif (
+                            methods[mthd][0] == key.split("@")[0]
+                            and methods[mthd][1] in key.split("@")[1]
+                        ):
                             methods[mthd][29] = storage[key][0]
                             methods[mthd][30] = storage[key][1]
                             methods[mthd][31] = storage[key][2]
@@ -367,7 +370,10 @@ def main():
                             # ["getAttribute"]
                             methods[mthd][33] = storage[key][0]
                         # hadnling cases where call_stack of network request differ
-                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                        elif (
+                            methods[mthd][0] == key.split("@")[0]
+                            and methods[mthd][1] in key.split("@")[1]
+                        ):
                             methods[mthd][33] = storage[key][0]
             except:
                 pass
@@ -400,8 +406,11 @@ def main():
                             methods[mthd][36] = storage[key][2]
                             methods[mthd][37] = storage[key][3]
                             methods[mthd][38] = storage[key][4]
-                        # hadnling cases where call_stack of network request differ 
-                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                        # hadnling cases where call_stack of network request differ
+                        elif (
+                            methods[mthd][0] == key.split("@")[0]
+                            and methods[mthd][1] in key.split("@")[1]
+                        ):
                             methods[mthd][34] = storage[key][0]
                             methods[mthd][35] = storage[key][1]
                             methods[mthd][36] = storage[key][2]
@@ -409,7 +418,7 @@ def main():
                             methods[mthd][38] = storage[key][4]
             except:
                 pass
-            
+
             fingerprinting_ids = []
             # has_fingerprinting_eventlistner
             try:
@@ -425,7 +434,8 @@ def main():
                             "copy",
                             "paste",
                             "geolocation",
-                        ])
+                        ],
+                    )
                 for mthd in methods.keys():
                     methods[mthd].append(0)
                     for key in storage.keys():
@@ -435,7 +445,10 @@ def main():
                             fingerprinting_ids.append(int(mthd))
                         # hadnling cases where call_stack of network request differ slightly from addEventList
                         # e.g 'Object._.db' in addEventList and '_.db' in network request
-                        elif methods[mthd][0] == key.split('@')[0] and methods[mthd][1] in key.split('@')[1]:
+                        elif (
+                            methods[mthd][0] == key.split("@")[0]
+                            and methods[mthd][1] in key.split("@")[1]
+                        ):
                             # ["analytic", "track", "touchstart", "visibilitychange", "mousemove", "copy", "paste", "geolocation"]
                             methods[mthd][39] = storage[key]
                             fingerprinting_ids.append(int(mthd))
@@ -449,11 +462,11 @@ def main():
                 methods[mthd].append(0)
                 methods[mthd].append(0)
                 for node_id in nx.descendants(graph, str(mthd)):
-                        if int(node_id) in fingerprinting_ids:
-                            methods[mthd][40] += 1
+                    if int(node_id) in fingerprinting_ids:
+                        methods[mthd][40] += 1
                 for node_id in nx.ancestors(graph, str(mthd)):
-                        if int(node_id) in fingerprinting_ids:
-                            methods[mthd][41] += 1
+                    if int(node_id) in fingerprinting_ids:
+                        methods[mthd][41] += 1
 
             # script@method: [[local, closure, global, script]]
             debug = {}
@@ -586,4 +599,3 @@ def main():
 
 
 main()
-

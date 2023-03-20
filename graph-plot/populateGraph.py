@@ -28,7 +28,6 @@ def addEdge(edges, src, tar, type):
 
 
 def createWebGraph(url):
-
     folder = (
         "/home/student/TrackerSift/MethGraph/webpage-crawler-extension/server/output/"
         + url
@@ -285,7 +284,6 @@ def createWebGraph(url):
     )
 
     for key in nodes:
-
         if nodes[key][1] == "Script" or nodes[key][1] == "ScriptMethod":
             if nodes[key][4] == 1:
                 plot.node(

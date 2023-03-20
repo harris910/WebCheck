@@ -1,5 +1,4 @@
-# from populateGraphWithCallStack import createWebGraphWithCallStack
-from populateGraphWithCallStackHash import createWebGraphWithCallStack
+from populateGraphWithCallStack import createWebGraphWithCallStack
 import networkx as nx
 import os
 

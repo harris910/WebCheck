@@ -2,6 +2,7 @@
 
 import json
 
+
 # storage_dic = {'_gid' = [002, 5288992, 1], '_svd' = [5]}
 # script_dic = {'https://ad/test.js@method': [set->[_gid,..], get->[_svd, ..]]}
 def addStorage(script_dic, storage_dic, dataset):
@@ -20,7 +21,6 @@ def addStorage(script_dic, storage_dic, dataset):
     try:
         if dataset["function"] == "cookie_setter":
             if dataset["cookie"] != "":
-
                 if dataset["cookie"].split("=")[0].strip() not in storage_dic.keys():
                     storage_dic[dataset["cookie"].split("=")[0].strip()] = [
                         "cookie_setter"
@@ -46,7 +46,6 @@ def addStorage(script_dic, storage_dic, dataset):
 
         elif dataset["function"] == "cookie_getter":
             if dataset["cookie"] != "":
-
                 script_url = getStorageScriptFromStackWebGraph(dataset["stack"])
                 lst = dataset["cookie"].split(";")
                 for item in lst:
@@ -102,29 +101,27 @@ def addStorage(script_dic, storage_dic, dataset):
 def getStorageScriptFromStack(script):
     unique_scripts = []
     if script is not "":
-      try:
-        stack = script.split("at ")
-        for item in stack:
-            if item.startswith("Error") or "chrome-extension" in item:
-                pass
-            elif "(" in item:
-                #at window.Storage.getItem (chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26)\n    
-                method = item.split("(")[0].strip() # l
-                script = item.split("(")[
-                    1
-                ]
-                script = "https:" + script.split(":")[1]
-                if script +"@"+method not in unique_scripts:
-                  unique_scripts.append(script +"@"+method)
-            else:
-                #at chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26\n  
-                method = ""
-                script = item.strip()
-                script = "https:" + script.split(":")[1]
-                if script +"@"+ method not in unique_scripts:
-                  unique_scripts.append(script +"@"+ method)
-      except:
-        pass
+        try:
+            stack = script.split("at ")
+            for item in stack:
+                if item.startswith("Error") or "chrome-extension" in item:
+                    pass
+                elif "(" in item:
+                    # at window.Storage.getItem (chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26)\n
+                    method = item.split("(")[0].strip()  # l
+                    script = item.split("(")[1]
+                    script = "https:" + script.split(":")[1]
+                    if script + "@" + method not in unique_scripts:
+                        unique_scripts.append(script + "@" + method)
+                else:
+                    # at chrome-extension://dkbabheepgaekgnabjadkefghhglljil/inject.js:46:26\n
+                    method = ""
+                    script = item.strip()
+                    script = "https:" + script.split(":")[1]
+                    if script + "@" + method not in unique_scripts:
+                        unique_scripts.append(script + "@" + method)
+        except:
+            pass
     return unique_scripts
 
 
@@ -150,4 +147,3 @@ def getStorageDic(storage_dic, _key):
             return key
     storage_dic[_key] = []
     return _key
-

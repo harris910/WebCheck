@@ -17,6 +17,7 @@ from adblockparser import AdblockRules
 `CheckTrackingReq(rules, url, top_level_url, resource_type)`
 """
 
+
 # Description: append the filter rules list
 # input: filename = file containing easylist and easyprivacylist
 # return: Adblock rules object
@@ -32,6 +33,7 @@ def getRules(filename):
 # Description: setting predefined rules
 easylist = getRules("EasyPrivacyList.xlsx")
 easyPrivacylist = getRules("easyList.xlsx")
+
 
 # Description: extract domain from given url
 # input: url = url for which domain is needed
@@ -79,6 +81,7 @@ def CheckTrackingReq(rules, url, top_level_url, resource_type):
 `callstack` -> `stack` & `type`='Script' -> `callframes` & `parent`
 
 """
+
 
 # Description: Search the tracking status for each unique script url's in the stack
 # input: dataset = complete http_req table with easylist and easyprivacylist flags
@@ -135,6 +138,7 @@ def rec_stack_checker(stack, unique_scripts):
 `df_to_excel(dataset, 'test.xlsx')`
 
 """
+
 
 # Description: Converts dataframe to excel file
 # input: dataset = dataframe to be converted

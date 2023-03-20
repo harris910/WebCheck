@@ -108,7 +108,6 @@ def addCallStackInfo(nodes, edges, callstack, TC, FC, classlabel):
 
 
 def createWebGraphWithCallStack(url):
-
     folder = (
         "/home/student/TrackerSift/MethGraph/webpage-crawler-extension/server/output/"
         + url
@@ -357,7 +356,7 @@ def createWebGraphWithCallStack(url):
                 val = IsInfoShared(storage_dic, dataset["http_req"])
                 if val is not None:
                     addEdge(edges, nodes["Storage@" + val][0], src, "Info Shared")
-    
+
     json.dump(nodes, open(folder + "nodes.json", "w"))
     json.dump(edges, open(folder + "edges.json", "w"))
     json.dump(script_dic, open(folder + "script.json", "w"))
@@ -368,7 +367,6 @@ def createWebGraphWithCallStack(url):
     )
 
     for key in nodes:
-
         if nodes[key][1] == "Script" or nodes[key][1] == "ScriptMethod":
             if nodes[key][4] == 1:
                 plot.node(
