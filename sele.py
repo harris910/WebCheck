@@ -5,19 +5,19 @@ import time
 import json
 import shutil
 
-from pyvirtualdisplay import Display
+#from pyvirtualdisplay import Display
 import pandas as pd
 import requests
 import os
 
 
 # virtual display
-display = Display(visible=0, size=(800, 600))
-display.start()
+#display = Display(visible=0, size=(800, 600))
+#display.start()
 
-df = pd.read_csv(r"ten.csv")
+#df = pd.read_csv(r"ten.csv")
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-# df = pd.DataFrame([["livescore.com"]], columns=["website"])
+df = pd.DataFrame([["react.dev"]], columns=["website"])
 
 
 # helper functions for breakpoints
@@ -144,7 +144,7 @@ def visitWebsite(df):
     # try:
     dic = {}
     # extension filepath
-    ext_file = "extension"
+    ext_file = "D:/Research/WebCheck/WebCheck/extension"
 
     opt = webdriver.ChromeOptions()
     # devtools necessary for complete network stack capture

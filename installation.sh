@@ -1,0 +1,1 @@
+pip3 install numpy pandas adblockparser openpyxl pyvirtualdisplay selenium tldextract webdriver-manager
