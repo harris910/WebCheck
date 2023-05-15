@@ -17,7 +17,7 @@ import os
 
 #df = pd.read_csv(r"ten.csv")
 # extractDigits(os.listdir('/home/student/TrackerSift/UserStudy/output'))
-df = pd.DataFrame([["react.dev"]], columns=["website"])
+df = pd.DataFrame([["infowars.com"]], columns=["website"])
 
 
 # helper functions for breakpoints
