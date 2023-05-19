@@ -3,3 +3,4 @@ node_modules
 output
 webpack
 .DS_Store
+not_loaded_scripts.xlsx
