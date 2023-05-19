@@ -1,7 +1,6 @@
 import pandas as pd
 import urllib.request
 import os
-from openpyxl import load_workbook
 
 notloaded_scripts=[]
 
